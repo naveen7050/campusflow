@@ -20,9 +20,13 @@ app.get('/api/health', (req, res) => {
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const subjectRoutes = require('./routes/subjectRoutes');
+const noteRoutes = require('./routes/noteRoutes');
+const materialRoutes = require('./routes/materialRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/subjects', subjectRoutes);
+app.use('/api/notes', noteRoutes);
+app.use('/api/materials', materialRoutes);
 
 module.exports = app;
 
