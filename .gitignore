@@ -3,6 +3,12 @@
 .env.*
 !.env.example
 *.env
+*.keystore
+*.jks
+key.properties
+**/key.properties
+local.properties
+**/local.properties
 
 # Node.js
 node_modules/
