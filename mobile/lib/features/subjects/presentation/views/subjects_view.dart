@@ -8,7 +8,9 @@ import 'subject_detail_view.dart';
 class SubjectsView extends StatefulWidget {
   static const String routeName = '/subjects';
 
-  const SubjectsView({super.key});
+  final bool isTab;
+
+  const SubjectsView({super.key, this.isTab = false});
 
   @override
   State<SubjectsView> createState() => _SubjectsViewState();
@@ -42,33 +44,35 @@ class _SubjectsViewState extends State<SubjectsView> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Navigator.canPop(context)
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-                color: const Color(0xFF1F2937),
-                onPressed: () => Navigator.pop(context),
-              )
-            : null,
-        title: const Text(
-          'Subjects',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded),
-            color: const Color(0xFF0F5132),
-            tooltip: 'Add Subject',
-            onPressed: _openAddSubject,
-          ),
-        ],
-      ),
+      appBar: widget.isTab
+          ? null
+          : AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leading: Navigator.canPop(context)
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                      color: const Color(0xFF1F2937),
+                      onPressed: () => Navigator.pop(context),
+                    )
+                  : null,
+              title: const Text(
+                'Subjects',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1F2937),
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline_rounded),
+                  color: const Color(0xFF0F5132),
+                  tooltip: 'Add Subject',
+                  onPressed: _openAddSubject,
+                ),
+              ],
+            ),
       body: SafeArea(
         child: RefreshIndicator(
           color: const Color(0xFF0F5132),
@@ -83,6 +87,32 @@ class _SubjectsViewState extends State<SubjectsView> {
                   constraints: const BoxConstraints(maxWidth: 1200),
                   child: Column(
                     children: [
+                      if (widget.isTab)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Explore Subjects',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1F2937),
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.add_circle_outline_rounded,
+                                  color: Color(0xFF0F5132),
+                                ),
+                                tooltip: 'Add Subject',
+                                onPressed: _openAddSubject,
+                              ),
+                            ],
+                          ),
+                        ),
                       // Search and Filter Section
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
@@ -176,14 +206,16 @@ class _SubjectsViewState extends State<SubjectsView> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openAddSubject,
-        backgroundColor: const Color(0xFF0F5132),
-        foregroundColor: Colors.white,
-        elevation: 3,
-        tooltip: 'Add Subject',
-        child: const Icon(Icons.add, size: 28),
-      ),
+      floatingActionButton: widget.isTab
+          ? null
+          : FloatingActionButton(
+              onPressed: _openAddSubject,
+              backgroundColor: const Color(0xFF0F5132),
+              foregroundColor: Colors.white,
+              elevation: 3,
+              tooltip: 'Add Subject',
+              child: const Icon(Icons.add, size: 28),
+            ),
     );
   }
 

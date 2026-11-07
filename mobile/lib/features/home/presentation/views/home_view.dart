@@ -245,7 +245,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildPlaceholder(int index) {
     if (index == 1) {
-      return const SubjectsView();
+      return const SubjectsView(isTab: true);
     }
     final labels = ['', 'Explore', '', 'Shared', 'Profile'];
     return Center(
