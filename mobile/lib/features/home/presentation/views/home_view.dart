@@ -4,6 +4,10 @@ import 'package:campusflow/features/auth/presentation/viewmodels/auth_viewmodel.
 import 'package:campusflow/features/auth/presentation/views/login_view.dart';
 import 'package:campusflow/features/subjects/presentation/views/subjects_view.dart';
 import 'package:campusflow/features/subjects/presentation/widgets/add_edit_subject_dialog.dart';
+import 'add_content_view.dart';
+import '../../notes/presentation/views/notes_view.dart';
+import '../../materials/presentation/views/materials_view.dart';
+import '../../questions/presentation/views/create_question_view.dart';
 
 class HomeView extends StatefulWidget {
   static const String routeName = '/home';
@@ -169,18 +173,30 @@ class _HomeViewState extends State<HomeView> {
                       icon: Icons.quiz_outlined,
                       label: 'Questions',
                       count: '12 items',
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        CreateQuestionView.routeName,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     _StatChip(
                       icon: Icons.notes_outlined,
                       label: 'Notes',
                       count: '9 items',
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        NotesView.routeName,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     _StatChip(
                       icon: Icons.folder_outlined,
                       label: 'Materials',
                       count: '5 items',
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        MaterialsView.routeName,
+                      ),
                     ),
                   ],
                 ),
@@ -225,6 +241,10 @@ class _HomeViewState extends State<HomeView> {
                   iconColor: const Color(0xFF0F5132),
                   title: 'DBMS Important Questions',
                   subtitle: 'Database Management Systems',
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    CreateQuestionView.routeName,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 _RecentItem(
@@ -233,6 +253,10 @@ class _HomeViewState extends State<HomeView> {
                   iconColor: const Color(0xFF0F5132),
                   title: 'OOP Concepts Notes',
                   subtitle: 'Object Oriented Programming',
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    NotesView.routeName,
+                  ),
                 ),
                 const SizedBox(height: 20),
               ],
@@ -313,7 +337,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildFab(dynamic authViewModel) {
     return FloatingActionButton(
-      onPressed: () => AddEditSubjectDialog.show(context),
+      onPressed: () => Navigator.pushNamed(context, AddContentView.routeName),
       backgroundColor: const Color(0xFF0F5132),
       foregroundColor: Colors.white,
       elevation: 4,
@@ -327,52 +351,64 @@ class _StatChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final String count;
+  final VoidCallback? onTap;
 
   const _StatChip({
     required this.icon,
     required this.label,
     required this.count,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEBF5E9),
-                borderRadius: BorderRadius.circular(8),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEBF5E9),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(icon, size: 16, color: const Color(0xFF0F5132)),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1F2937),
+                    ),
+                  ),
+                  Text(
+                    count,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
               ),
-              child: Icon(icon, size: 16, color: const Color(0xFF0F5132)),
             ),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
-              ),
-            ),
-            Text(
-              count,
-              style: const TextStyle(
-                fontSize: 10,
-                color: Color(0xFF6B7280),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -385,6 +421,7 @@ class _RecentItem extends StatelessWidget {
   final Color iconColor;
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
   const _RecentItem({
     required this.icon,
@@ -392,58 +429,69 @@ class _RecentItem extends StatelessWidget {
     required this.iconColor,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFFF9FAFB),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, size: 20, color: iconColor),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1F2937),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: iconBg,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 20, color: iconColor),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1F2937),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF6B7280),
-                  ),
+                const Icon(
+                  Icons.chevron_right,
+                  color: Color(0xFF9CA3AF),
+                  size: 18,
                 ),
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right,
-            color: Color(0xFF9CA3AF),
-            size: 18,
-          ),
-        ],
+        ),
       ),
     );
   }

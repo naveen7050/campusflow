@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../domain/models/subject_model.dart';
 import '../viewmodels/subject_viewmodel.dart';
 import '../widgets/add_edit_subject_dialog.dart';
+import '../../notes/presentation/views/notes_view.dart';
+import '../../materials/presentation/views/materials_view.dart';
+import '../../questions/presentation/views/create_question_view.dart';
 
 class SubjectDetailView extends StatefulWidget {
   static const String routeName = '/subject-detail';
@@ -328,7 +331,12 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                         title: 'Question Bank',
                         subtitle: 'Review & practice past questions',
                         color: const Color(0xFF0F5132),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            CreateQuestionView.routeName,
+                          );
+                        },
                       ),
                       const SizedBox(height: 10),
                       _ResourceTile(
@@ -336,7 +344,17 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                         title: 'Subject Notes',
                         subtitle: 'Read and create study notes',
                         color: const Color(0xFF2E7D32),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => NotesView(
+                                subjectId: subject.id,
+                                subjectName: subject.name,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 10),
                       _ResourceTile(
@@ -344,7 +362,17 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                         title: 'Study Materials',
                         subtitle: 'PDFs, slides, and syllabus documents',
                         color: const Color(0xFF1E3A8A),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MaterialsView(
+                                subjectId: subject.id,
+                                subjectName: subject.name,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 10),
                       _ResourceTile(

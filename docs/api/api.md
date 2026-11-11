@@ -148,6 +148,127 @@ All endpoints require `Authorization: Bearer <token>`.
 }
 ```
 
+---
+
+## Notes Endpoints
+
+All endpoints require `Authorization: Bearer <token>`.
+
+### 1. Create Note
+- **Route:** `POST /notes`
+- **Access:** Protected
+- **Request Body:**
+```json
+{
+  "subjectId": "uuid-optional",
+  "title": "Data Structures - Binary Trees",
+  "content": "Trees are non-linear data structures consisting of nodes...",
+  "tags": ["Tree", "Unit 2"],
+  "isShared": true
+}
+```
+- **Success Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Note created successfully.",
+  "data": {
+    "note": {
+      "id": "uuid-here",
+      "user_id": "user-uuid",
+      "subject_id": "subject-uuid",
+      "title": "Data Structures - Binary Trees",
+      "content": "Trees are non-linear data structures...",
+      "tags": ["Tree", "Unit 2"],
+      "is_shared": true,
+      "created_at": "2026-11-11T12:00:00.000Z",
+      "updated_at": "2026-11-11T12:00:00.000Z"
+    }
+  }
+}
+```
+
+### 2. Get Notes
+- **Route:** `GET /notes?subjectId=:id&filter=all|my|shared`
+- **Access:** Protected
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Notes retrieved successfully.",
+  "data": {
+    "notes": []
+  }
+}
+```
+
+### 3. Update Note
+- **Route:** `PUT /notes/:id`
+- **Access:** Protected
+
+### 4. Delete Note
+- **Route:** `DELETE /notes/:id`
+- **Access:** Protected
+
+---
+
+## Study Materials Endpoints
+
+All endpoints require `Authorization: Bearer <token>`.
+
+### 1. Create Study Material
+- **Route:** `POST /materials`
+- **Access:** Protected
+- **Request Body:**
+```json
+{
+  "subjectId": "uuid-optional",
+  "title": "OOP Lecture Slides",
+  "fileUrl": "https://example.com/oop.pdf",
+  "fileType": "PDF",
+  "fileSize": "2.4 MB",
+  "isShared": true
+}
+```
+- **Success Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Study material created successfully.",
+  "data": {
+    "material": {
+      "id": "uuid-here",
+      "user_id": "user-uuid",
+      "title": "OOP Lecture Slides",
+      "file_type": "PDF",
+      "file_size": "2.4 MB"
+    }
+  }
+}
+```
+
+### 2. Get Study Materials
+- **Route:** `GET /materials?subjectId=:id&filter=all|my|shared`
+- **Access:** Protected
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Materials retrieved successfully.",
+  "data": {
+    "materials": []
+  }
+}
+```
+
+### 3. Update Study Material
+- **Route:** `PUT /materials/:id`
+- **Access:** Protected
+
+### 4. Delete Study Material
+- **Route:** `DELETE /materials/:id`
+- **Access:** Protected
+
 ### 2. Login User
 - **Route:** `POST /auth/login`
 - **Access:** Public
@@ -284,6 +405,127 @@ All endpoints require `Authorization: Bearer <token>`.
 }
 ```
 
+---
+
+## Notes Endpoints
+
+All endpoints require `Authorization: Bearer <token>`.
+
+### 1. Create Note
+- **Route:** `POST /notes`
+- **Access:** Protected
+- **Request Body:**
+```json
+{
+  "subjectId": "uuid-optional",
+  "title": "Data Structures - Binary Trees",
+  "content": "Trees are non-linear data structures consisting of nodes...",
+  "tags": ["Tree", "Unit 2"],
+  "isShared": true
+}
+```
+- **Success Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Note created successfully.",
+  "data": {
+    "note": {
+      "id": "uuid-here",
+      "user_id": "user-uuid",
+      "subject_id": "subject-uuid",
+      "title": "Data Structures - Binary Trees",
+      "content": "Trees are non-linear data structures...",
+      "tags": ["Tree", "Unit 2"],
+      "is_shared": true,
+      "created_at": "2026-11-11T12:00:00.000Z",
+      "updated_at": "2026-11-11T12:00:00.000Z"
+    }
+  }
+}
+```
+
+### 2. Get Notes
+- **Route:** `GET /notes?subjectId=:id&filter=all|my|shared`
+- **Access:** Protected
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Notes retrieved successfully.",
+  "data": {
+    "notes": []
+  }
+}
+```
+
+### 3. Update Note
+- **Route:** `PUT /notes/:id`
+- **Access:** Protected
+
+### 4. Delete Note
+- **Route:** `DELETE /notes/:id`
+- **Access:** Protected
+
+---
+
+## Study Materials Endpoints
+
+All endpoints require `Authorization: Bearer <token>`.
+
+### 1. Create Study Material
+- **Route:** `POST /materials`
+- **Access:** Protected
+- **Request Body:**
+```json
+{
+  "subjectId": "uuid-optional",
+  "title": "OOP Lecture Slides",
+  "fileUrl": "https://example.com/oop.pdf",
+  "fileType": "PDF",
+  "fileSize": "2.4 MB",
+  "isShared": true
+}
+```
+- **Success Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Study material created successfully.",
+  "data": {
+    "material": {
+      "id": "uuid-here",
+      "user_id": "user-uuid",
+      "title": "OOP Lecture Slides",
+      "file_type": "PDF",
+      "file_size": "2.4 MB"
+    }
+  }
+}
+```
+
+### 2. Get Study Materials
+- **Route:** `GET /materials?subjectId=:id&filter=all|my|shared`
+- **Access:** Protected
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Materials retrieved successfully.",
+  "data": {
+    "materials": []
+  }
+}
+```
+
+### 3. Update Study Material
+- **Route:** `PUT /materials/:id`
+- **Access:** Protected
+
+### 4. Delete Study Material
+- **Route:** `DELETE /materials/:id`
+- **Access:** Protected
+
 ### 3. Get Current User Profile
 - **Route:** `GET /auth/me`
 - **Access:** Protected (Requires `Authorization: Bearer <token>`)
@@ -410,3 +652,124 @@ All endpoints require `Authorization: Bearer <token>`.
   "message": "Subject deleted successfully."
 }
 ```
+
+---
+
+## Notes Endpoints
+
+All endpoints require `Authorization: Bearer <token>`.
+
+### 1. Create Note
+- **Route:** `POST /notes`
+- **Access:** Protected
+- **Request Body:**
+```json
+{
+  "subjectId": "uuid-optional",
+  "title": "Data Structures - Binary Trees",
+  "content": "Trees are non-linear data structures consisting of nodes...",
+  "tags": ["Tree", "Unit 2"],
+  "isShared": true
+}
+```
+- **Success Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Note created successfully.",
+  "data": {
+    "note": {
+      "id": "uuid-here",
+      "user_id": "user-uuid",
+      "subject_id": "subject-uuid",
+      "title": "Data Structures - Binary Trees",
+      "content": "Trees are non-linear data structures...",
+      "tags": ["Tree", "Unit 2"],
+      "is_shared": true,
+      "created_at": "2026-11-11T12:00:00.000Z",
+      "updated_at": "2026-11-11T12:00:00.000Z"
+    }
+  }
+}
+```
+
+### 2. Get Notes
+- **Route:** `GET /notes?subjectId=:id&filter=all|my|shared`
+- **Access:** Protected
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Notes retrieved successfully.",
+  "data": {
+    "notes": []
+  }
+}
+```
+
+### 3. Update Note
+- **Route:** `PUT /notes/:id`
+- **Access:** Protected
+
+### 4. Delete Note
+- **Route:** `DELETE /notes/:id`
+- **Access:** Protected
+
+---
+
+## Study Materials Endpoints
+
+All endpoints require `Authorization: Bearer <token>`.
+
+### 1. Create Study Material
+- **Route:** `POST /materials`
+- **Access:** Protected
+- **Request Body:**
+```json
+{
+  "subjectId": "uuid-optional",
+  "title": "OOP Lecture Slides",
+  "fileUrl": "https://example.com/oop.pdf",
+  "fileType": "PDF",
+  "fileSize": "2.4 MB",
+  "isShared": true
+}
+```
+- **Success Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Study material created successfully.",
+  "data": {
+    "material": {
+      "id": "uuid-here",
+      "user_id": "user-uuid",
+      "title": "OOP Lecture Slides",
+      "file_type": "PDF",
+      "file_size": "2.4 MB"
+    }
+  }
+}
+```
+
+### 2. Get Study Materials
+- **Route:** `GET /materials?subjectId=:id&filter=all|my|shared`
+- **Access:** Protected
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Materials retrieved successfully.",
+  "data": {
+    "materials": []
+  }
+}
+```
+
+### 3. Update Study Material
+- **Route:** `PUT /materials/:id`
+- **Access:** Protected
+
+### 4. Delete Study Material
+- **Route:** `DELETE /materials/:id`
+- **Access:** Protected

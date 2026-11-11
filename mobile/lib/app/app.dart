@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../features/subjects/presentation/viewmodels/subject_viewmodel.dart';
+import '../features/notes/presentation/viewmodels/note_viewmodel.dart';
+import '../features/materials/presentation/viewmodels/material_viewmodel.dart';
 import '../features/auth/presentation/views/login_view.dart';
 import '../features/auth/presentation/views/splash_view.dart';
 import '../features/home/presentation/views/home_view.dart';
@@ -21,6 +23,12 @@ class CampusFlowApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => SubjectViewModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NoteViewModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => MaterialViewModel(),
         ),
       ],
       child: MaterialApp(

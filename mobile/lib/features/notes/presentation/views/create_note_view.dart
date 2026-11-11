@@ -341,3 +341,4 @@ class _CreateNoteViewState extends State<CreateNoteView> {
     );
   }
 }
+

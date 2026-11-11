@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../notes/presentation/views/create_note_view.dart';
 import '../../materials/presentation/widgets/add_material_dialog.dart';
+import '../../questions/presentation/views/create_question_view.dart';
 
 class AddContentView extends StatelessWidget {
   static const String routeName = '/add-content';
@@ -42,11 +43,7 @@ class AddContentView extends StatelessWidget {
                   title: 'Add Question',
                   subtitle: 'Type and save important questions',
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Question bank feature coming next!'),
-                      ),
-                    );
+                    Navigator.pushNamed(context, CreateQuestionView.routeName);
                   },
                 ),
                 const SizedBox(height: 14),
