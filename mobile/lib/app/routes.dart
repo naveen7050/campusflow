@@ -11,6 +11,10 @@ import '../features/notes/presentation/views/notes_view.dart';
 import '../features/notes/presentation/views/create_note_view.dart';
 import '../features/materials/presentation/views/materials_view.dart';
 import '../features/questions/presentation/views/create_question_view.dart';
+import '../features/assignments/presentation/views/assignments_view.dart';
+import '../features/shared/presentation/views/shared_with_me_view.dart';
+import '../features/profile/presentation/views/profile_view.dart';
+import '../features/profile/presentation/views/settings_view.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -28,6 +32,10 @@ class AppRoutes {
   static const String createNote = CreateNoteView.routeName;
   static const String materials = MaterialsView.routeName;
   static const String createQuestion = CreateQuestionView.routeName;
+  static const String assignments = AssignmentsView.routeName;
+  static const String sharedWithMe = SharedWithMeView.routeName;
+  static const String profile = ProfileView.routeName;
+  static const String settings = SettingsView.routeName;
 
   static Map<String, WidgetBuilder> get routes {
     return {
@@ -43,6 +51,10 @@ class AppRoutes {
       createNote: (context) => const CreateNoteView(),
       materials: (context) => const MaterialsView(),
       createQuestion: (context) => const CreateQuestionView(),
+      assignments: (context) => const AssignmentsView(),
+      sharedWithMe: (context) => const SharedWithMeView(),
+      profile: (context) => const ProfileView(),
+      settings: (context) => const SettingsView(),
     };
   }
 }

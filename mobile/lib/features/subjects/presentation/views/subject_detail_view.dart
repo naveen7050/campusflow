@@ -6,6 +6,7 @@ import '../widgets/add_edit_subject_dialog.dart';
 import '../../notes/presentation/views/notes_view.dart';
 import '../../materials/presentation/views/materials_view.dart';
 import '../../questions/presentation/views/create_question_view.dart';
+import '../../assignments/presentation/views/assignments_view.dart';
 
 class SubjectDetailView extends StatefulWidget {
   static const String routeName = '/subject-detail';
@@ -380,7 +381,17 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                         title: 'Assignments',
                         subtitle: 'Track assignments & submission deadlines',
                         color: const Color(0xFFD97706),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AssignmentsView(
+                                subjectId: subject.id,
+                                subjectName: subject.name,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

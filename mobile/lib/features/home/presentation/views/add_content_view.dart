@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../notes/presentation/views/create_note_view.dart';
 import '../../materials/presentation/widgets/add_material_dialog.dart';
 import '../../questions/presentation/views/create_question_view.dart';
+import '../../assignments/presentation/widgets/add_assignment_dialog.dart';
 
 class AddContentView extends StatelessWidget {
   static const String routeName = '/add-content';
@@ -76,11 +77,7 @@ class AddContentView extends StatelessWidget {
                   title: 'Add Assignment',
                   subtitle: 'Keep track of your assignments',
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Assignments tracker coming next!'),
-                      ),
-                    );
+                    AddAssignmentDialog.show(context);
                   },
                 ),
               ],

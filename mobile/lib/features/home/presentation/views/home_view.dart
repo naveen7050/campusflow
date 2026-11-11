@@ -8,6 +8,9 @@ import 'add_content_view.dart';
 import '../../notes/presentation/views/notes_view.dart';
 import '../../materials/presentation/views/materials_view.dart';
 import '../../questions/presentation/views/create_question_view.dart';
+import '../../assignments/presentation/views/assignments_view.dart';
+import '../../shared/presentation/views/shared_with_me_view.dart';
+import '../../profile/presentation/views/profile_view.dart';
 
 class HomeView extends StatefulWidget {
   static const String routeName = '/home';
@@ -198,6 +201,16 @@ class _HomeViewState extends State<HomeView> {
                         MaterialsView.routeName,
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    _StatChip(
+                      icon: Icons.assignment_outlined,
+                      label: 'Tasks',
+                      count: '3 items',
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        AssignmentsView.routeName,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -258,6 +271,18 @@ class _HomeViewState extends State<HomeView> {
                     NotesView.routeName,
                   ),
                 ),
+                const SizedBox(height: 10),
+                _RecentItem(
+                  icon: Icons.assignment_outlined,
+                  iconBg: const Color(0xFFFFFBEB),
+                  iconColor: const Color(0xFFD97706),
+                  title: 'DBMS Assignment',
+                  subtitle: 'Due: 12 Sep 2025 • Database Management',
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    AssignmentsView.routeName,
+                  ),
+                ),
                 const SizedBox(height: 20),
               ],
             ),
@@ -271,17 +296,13 @@ class _HomeViewState extends State<HomeView> {
     if (index == 1) {
       return const SubjectsView(isTab: true);
     }
-    final labels = ['', 'Explore', '', 'Shared', 'Profile'];
-    return Center(
-      child: Text(
-        labels[index],
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF1F2937),
-        ),
-      ),
-    );
+    if (index == 3) {
+      return const SharedWithMeView(isTab: true);
+    }
+    if (index == 4) {
+      return const ProfileView(isTab: true);
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _buildBottomNav() {

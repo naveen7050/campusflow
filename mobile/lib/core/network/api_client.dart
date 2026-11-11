@@ -104,6 +104,31 @@ class ApiClient {
     }
   }
 
+  Future<dynamic> patch(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    bool requireAuth = false,
+  }) async {
+    try {
+      final uri = Uri.parse('$_baseUrl$endpoint');
+      final headers = await _getHeaders(requireAuth: requireAuth);
+      final response = await _client.patch(
+        uri,
+        headers: headers,
+        body: body != null ? jsonEncode(body) : null,
+      );
+
+      return _processResponse(response);
+    } on SocketException {
+      throw const NetworkException('No internet connection.');
+    } on http.ClientException {
+      throw const NetworkException('Network request failed.');
+    } catch (e) {
+      if (e is AppException) rethrow;
+      throw AppException(e.toString());
+    }
+  }
+
   Future<dynamic> delete(
     String endpoint, {
     bool requireAuth = false,

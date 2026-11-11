@@ -773,3 +773,71 @@ All endpoints require `Authorization: Bearer <token>`.
 ### 4. Delete Study Material
 - **Route:** `DELETE /materials/:id`
 - **Access:** Protected
+
+
+---
+
+## Assignments Endpoints
+
+All endpoints require `Authorization: Bearer <token>`.
+
+### 1. Create Assignment
+- **Route:** `POST /assignments`
+- **Access:** Protected
+- **Request Body:**
+```json
+{
+  "subjectId": "uuid-optional",
+  "title": "DBMS Assignment",
+  "description": "ER diagrams and normalization exercises",
+  "dueDate": "2025-09-12T18:00:00.000Z",
+  "isSubmitted": false
+}
+```
+- **Success Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Assignment created successfully.",
+  "data": {
+    "assignment": {
+      "id": "uuid-here",
+      "user_id": "user-uuid",
+      "subject_id": "subject-uuid",
+      "title": "DBMS Assignment",
+      "description": "ER diagrams and normalization exercises",
+      "due_date": "2025-09-12T18:00:00.000Z",
+      "is_submitted": false,
+      "submitted_at": null,
+      "created_at": "2026-11-11T12:00:00.000Z",
+      "updated_at": "2026-11-11T12:00:00.000Z"
+    }
+  }
+}
+```
+
+### 2. Get Assignments
+- **Route:** `GET /assignments?subjectId=:id&filter=all|upcoming|completed`
+- **Access:** Protected
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Assignments retrieved successfully.",
+  "data": {
+    "assignments": []
+  }
+}
+```
+
+### 3. Update Assignment
+- **Route:** `PUT /assignments/:id`
+- **Access:** Protected
+
+### 4. Toggle Assignment Submission Status
+- **Route:** `PATCH /assignments/:id/toggle`
+- **Access:** Protected
+
+### 5. Delete Assignment
+- **Route:** `DELETE /assignments/:id`
+- **Access:** Protected
