@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../subjects/presentation/viewmodels/subject_viewmodel.dart';
+import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
+import 'package:campusflow/features/questions/presentation/viewmodels/question_viewmodel.dart';
+import 'package:campusflow/core/widgets/category_bottom_sheet.dart';
 
 class CreateQuestionView extends StatefulWidget {
   static const String routeName = '/create-question';
@@ -33,16 +35,25 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
     super.dispose();
   }
 
-  void _saveQuestion() {
+  Future<void> _saveQuestion() async {
     if (!_formKey.currentState!.validate()) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Question saved successfully!'),
-        backgroundColor: Color(0xFF0F5132),
-      ),
+    final vm = context.read<QuestionViewModel>();
+    final success = await vm.createQuestion(
+      subjectId: _selectedSubjectId,
+      question: _questionController.text.trim(),
+      answer: _answerController.text.trim(),
     );
-    Navigator.pop(context);
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Question saved successfully!'),
+          backgroundColor: Color(0xFF0F5132),
+        ),
+      );
+      Navigator.pop(context);
+    }
   }
 
   static const _inputDecoration = InputDecoration(
@@ -149,7 +160,7 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
                   ),
                   const SizedBox(height: 18),
 
-                  // Category selector
+                  // Category selector (Screen 20 Bottom Sheet Integration)
                   const Text(
                     'Category',
                     style: TextStyle(
@@ -159,24 +170,62 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: _selectedSubjectId,
-                    dropdownColor: Colors.white,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF1F2937),
-                    ),
-                    decoration: _inputDecoration.copyWith(
-                      hintText: 'Select category',
-                      hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
-                    ),
-                    items: subjects.map((sub) {
-                      return DropdownMenuItem(
-                        value: sub.id,
-                        child: Text('${sub.name} (${sub.code ?? ""})'),
+                  InkWell(
+                    onTap: () async {
+                      final categoryNames = subjects.map((s) => s.name).toList();
+                      if (!categoryNames.contains('Other')) categoryNames.add('Other');
+                      final selectedName = subjects
+                          .where((s) => s.id == _selectedSubjectId)
+                          .map((s) => s.name)
+                          .firstOrNull;
+                      final chosen = await CategoryBottomSheet.show(
+                        context,
+                        categories: categoryNames.isNotEmpty
+                            ? categoryNames
+                            : ['DSA', 'Database', 'Web Development', 'Java', 'Android', 'Other'],
+                        initialSelected: selectedName,
                       );
-                    }).toList(),
-                    onChanged: (val) => setState(() => _selectedSubjectId = val),
+                      if (chosen != null) {
+                        final found =
+                            subjects.where((s) => s.name == chosen).firstOrNull;
+                        setState(() {
+                          _selectedSubjectId = found?.id;
+                        });
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            subjects
+                                    .where((s) => s.id == _selectedSubjectId)
+                                    .map((s) => s.name)
+                                    .firstOrNull ??
+                                'Select category',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: _selectedSubjectId != null
+                                  ? const Color(0xFF1F2937)
+                                  : const Color(0xFF9CA3AF),
+                            ),
+                          ),
+                          const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Color(0xFF9CA3AF),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 18),
 
@@ -227,7 +276,9 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
                   SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _saveQuestion,
+                      onPressed: context.watch<QuestionViewModel>().isSaving
+                          ? null
+                          : _saveQuestion,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0F5132),
                         foregroundColor: Colors.white,
@@ -236,13 +287,22 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
                         ),
                         elevation: 0,
                       ),
-                      child: const Text(
-                        'Save',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      child: context.watch<QuestionViewModel>().isSaving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Save',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -254,3 +314,4 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
     );
   }
 }
+

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../subjects/presentation/viewmodels/subject_viewmodel.dart';
-import '../domain/models/assignment_model.dart';
-import '../viewmodels/assignment_viewmodel.dart';
+import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
+import 'package:campusflow/features/assignments/domain/models/assignment_model.dart';
+import 'package:campusflow/features/assignments/presentation/viewmodels/assignment_viewmodel.dart';
 
 class AddAssignmentDialog extends StatefulWidget {
   final AssignmentModel? initialAssignment;
@@ -386,3 +386,4 @@ class _AddAssignmentDialogState extends State<AddAssignmentDialog> {
     );
   }
 }
+

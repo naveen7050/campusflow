@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../subjects/presentation/viewmodels/subject_viewmodel.dart';
-import '../viewmodels/material_viewmodel.dart';
+import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
+import 'package:campusflow/features/materials/presentation/viewmodels/material_viewmodel.dart';
 
 class AddMaterialDialog extends StatefulWidget {
   final String? initialSubjectId;

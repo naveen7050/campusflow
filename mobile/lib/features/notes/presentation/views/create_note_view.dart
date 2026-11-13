@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../subjects/presentation/viewmodels/subject_viewmodel.dart';
-import '../viewmodels/note_viewmodel.dart';
+import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
+import 'package:campusflow/features/notes/presentation/viewmodels/note_viewmodel.dart';
 
 class CreateNoteView extends StatefulWidget {
   static const String routeName = '/create-note';

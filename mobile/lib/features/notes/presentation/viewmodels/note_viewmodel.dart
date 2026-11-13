@@ -138,6 +138,13 @@ class NoteViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> toggleShare(NoteModel note) async {
+    return updateNote(
+      id: note.id,
+      isShared: !note.isShared,
+    );
+  }
+
   Future<bool> deleteNote(String id) async {
     _isSaving = true;
     _errorMessage = null;

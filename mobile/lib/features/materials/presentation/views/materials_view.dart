@@ -444,12 +444,51 @@ class _MaterialCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Text(
-                  dateStr,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF9CA3AF),
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        material.isShared
+                            ? Icons.share_rounded
+                            : Icons.share_outlined,
+                        color: material.isShared
+                            ? const Color(0xFF0F5132)
+                            : const Color(0xFF9CA3AF),
+                        size: 20,
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      tooltip: material.isShared
+                          ? 'Shared with peers'
+                          : 'Share with peers',
+                      onPressed: () async {
+                        final vm = context.read<MaterialViewModel>();
+                        final ok = await vm.toggleShare(material);
+                        if (ok && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                material.isShared
+                                    ? 'Material made private'
+                                    : 'Material shared with campus peers!',
+                              ),
+                              backgroundColor: const Color(0xFF0F5132),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      dateStr,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF9CA3AF),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

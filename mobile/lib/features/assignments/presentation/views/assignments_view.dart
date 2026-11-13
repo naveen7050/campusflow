@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../domain/models/assignment_model.dart';
-import '../viewmodels/assignment_viewmodel.dart';
-import '../widgets/add_assignment_dialog.dart';
+import 'package:campusflow/features/assignments/domain/models/assignment_model.dart';
+import 'package:campusflow/features/assignments/presentation/viewmodels/assignment_viewmodel.dart';
+import 'package:campusflow/features/assignments/presentation/widgets/add_assignment_dialog.dart';
 
 class AssignmentsView extends StatefulWidget {
   static const String routeName = '/assignments';
@@ -541,3 +541,4 @@ class _AssignmentCard extends StatelessWidget {
     );
   }
 }
+

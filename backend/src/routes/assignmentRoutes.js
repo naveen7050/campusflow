@@ -21,3 +21,4 @@ router.patch('/:id/toggle', toggleAssignment);
 router.delete('/:id', deleteAssignment);
 
 module.exports = router;
+

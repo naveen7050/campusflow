@@ -432,6 +432,36 @@ class _NoteCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                IconButton(
+                  icon: Icon(
+                    note.isShared
+                        ? Icons.share_rounded
+                        : Icons.share_outlined,
+                    color: note.isShared
+                        ? const Color(0xFF0F5132)
+                        : const Color(0xFF9CA3AF),
+                    size: 20,
+                  ),
+                  tooltip: note.isShared
+                      ? 'Shared with peers'
+                      : 'Share with peers',
+                  onPressed: () async {
+                    final vm = context.read<NoteViewModel>();
+                    final ok = await vm.toggleShare(note);
+                    if (ok && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            note.isShared
+                                ? 'Note made private'
+                                : 'Note shared with campus peers!',
+                          ),
+                          backgroundColor: const Color(0xFF0F5132),
+                        ),
+                      );
+                    }
+                  },
+                ),
                 const Icon(
                   Icons.chevron_right_rounded,
                   color: Color(0xFF9CA3AF),

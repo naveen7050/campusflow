@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../auth/presentation/viewmodels/auth_viewmodel.dart';
-import '../../auth/presentation/views/login_view.dart';
-import '../../subjects/presentation/views/subjects_view.dart';
+import 'package:campusflow/features/auth/presentation/viewmodels/auth_viewmodel.dart';
+import 'package:campusflow/features/auth/presentation/views/login_view.dart';
+import 'package:campusflow/features/subjects/presentation/views/subjects_view.dart';
 import 'settings_view.dart';
 
 class ProfileView extends StatelessWidget {
@@ -292,3 +292,4 @@ class _ProfileMenuItem extends StatelessWidget {
     );
   }
 }
+

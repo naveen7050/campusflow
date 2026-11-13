@@ -142,6 +142,13 @@ class MaterialViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> toggleShare(MaterialModel material) async {
+    return updateMaterial(
+      id: material.id,
+      isShared: !material.isShared,
+    );
+  }
+
   Future<bool> deleteMaterial(String id) async {
     _isSaving = true;
     _errorMessage = null;

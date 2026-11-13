@@ -16,3 +16,4 @@ CREATE INDEX IF NOT EXISTS idx_assignments_user_id ON assignments(user_id);
 CREATE INDEX IF NOT EXISTS idx_assignments_subject_id ON assignments(subject_id);
 CREATE INDEX IF NOT EXISTS idx_assignments_is_submitted ON assignments(is_submitted);
 CREATE INDEX IF NOT EXISTS idx_assignments_due_date ON assignments(due_date);
+

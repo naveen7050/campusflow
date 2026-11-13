@@ -3,14 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:campusflow/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:campusflow/features/auth/presentation/views/login_view.dart';
 import 'package:campusflow/features/subjects/presentation/views/subjects_view.dart';
-import 'package:campusflow/features/subjects/presentation/widgets/add_edit_subject_dialog.dart';
 import 'add_content_view.dart';
-import '../../notes/presentation/views/notes_view.dart';
-import '../../materials/presentation/views/materials_view.dart';
-import '../../questions/presentation/views/create_question_view.dart';
-import '../../assignments/presentation/views/assignments_view.dart';
-import '../../shared/presentation/views/shared_with_me_view.dart';
-import '../../profile/presentation/views/profile_view.dart';
+import 'package:campusflow/features/notes/presentation/views/notes_view.dart';
+import 'package:campusflow/features/materials/presentation/views/materials_view.dart';
+import 'package:campusflow/features/questions/presentation/views/questions_view.dart';
+import 'package:campusflow/features/assignments/presentation/views/assignments_view.dart';
+import 'package:campusflow/features/shared/presentation/views/shared_with_me_view.dart';
+import 'package:campusflow/features/profile/presentation/views/profile_view.dart';
+import 'package:campusflow/features/search/presentation/views/search_view.dart';
 
 class HomeView extends StatefulWidget {
   static const String routeName = '/home';
@@ -140,31 +140,35 @@ class _HomeViewState extends State<HomeView> {
                 const SizedBox(height: 14),
 
                 // Search bar
-                Container(
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 14),
-                      const Icon(
-                        Icons.search,
-                        color: Color(0xFF9CA3AF),
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      const Expanded(
-                        child: Text(
-                          'Search notes, questions, or files...',
-                          style: TextStyle(
-                            color: Color(0xFF9CA3AF),
-                            fontSize: 13,
+                InkWell(
+                  onTap: () => Navigator.pushNamed(context, SearchView.routeName),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      children: [
+                        SizedBox(width: 14),
+                        Icon(
+                          Icons.search,
+                          color: Color(0xFF9CA3AF),
+                          size: 20,
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Search notes, questions, or files...',
+                            style: TextStyle(
+                              color: Color(0xFF9CA3AF),
+                              fontSize: 13,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -178,7 +182,7 @@ class _HomeViewState extends State<HomeView> {
                       count: '12 items',
                       onTap: () => Navigator.pushNamed(
                         context,
-                        CreateQuestionView.routeName,
+                        QuestionsView.routeName,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -256,7 +260,7 @@ class _HomeViewState extends State<HomeView> {
                   subtitle: 'Database Management Systems',
                   onTap: () => Navigator.pushNamed(
                     context,
-                    CreateQuestionView.routeName,
+                    QuestionsView.routeName,
                   ),
                 ),
                 const SizedBox(height: 10),

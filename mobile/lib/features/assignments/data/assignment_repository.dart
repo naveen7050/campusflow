@@ -55,7 +55,7 @@ class AssignmentRepository {
 
     final response = await _apiClient.post(
       '/assignments',
-      body,
+      body: body,
       requireAuth: true,
     );
 
@@ -85,7 +85,7 @@ class AssignmentRepository {
 
     final response = await _apiClient.put(
       '/assignments/$id',
-      body,
+      body: body,
       requireAuth: true,
     );
 
@@ -101,7 +101,7 @@ class AssignmentRepository {
   Future<AssignmentModel> toggleAssignment(String id) async {
     final response = await _apiClient.patch(
       '/assignments/$id/toggle',
-      {},
+      body: {},
       requireAuth: true,
     );
 
@@ -125,3 +125,4 @@ class AssignmentRepository {
     }
   }
 }
+

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../notes/presentation/viewmodels/note_viewmodel.dart';
-import '../../materials/presentation/viewmodels/material_viewmodel.dart';
-import '../../notes/presentation/views/notes_view.dart';
-import '../../materials/presentation/views/materials_view.dart';
+import 'package:campusflow/features/notes/presentation/viewmodels/note_viewmodel.dart';
+import 'package:campusflow/features/materials/presentation/viewmodels/material_viewmodel.dart';
+import 'package:campusflow/features/notes/presentation/views/notes_view.dart';
+import 'package:campusflow/features/notes/presentation/views/create_note_view.dart';
+import 'package:campusflow/features/materials/presentation/views/materials_view.dart';
+import 'package:campusflow/features/materials/presentation/widgets/add_material_dialog.dart';
+import 'package:campusflow/features/questions/presentation/views/create_question_view.dart';
 
 class SharedWithMeView extends StatefulWidget {
   static const String routeName = '/shared-with-me';
@@ -32,6 +35,144 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _showSharePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Share with Campus Peers',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1F2937),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F5E9),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.edit_note_rounded,
+                      color: Color(0xFF2E7D32),
+                    ),
+                  ),
+                  title: const Text(
+                    'Share a Note',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text(
+                    'Publish revision notes to your batch',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.pushNamed(context, CreateNoteView.routeName);
+                  },
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.folder_outlined,
+                      color: Color(0xFF1E3A8A),
+                    ),
+                  ),
+                  title: const Text(
+                    'Share Study Material',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text(
+                    'Upload shared PDFs or syllabus links',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    AddMaterialDialog.show(context);
+                  },
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEBF5E9),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.quiz_outlined,
+                      color: Color(0xFF0F5132),
+                    ),
+                  ),
+                  title: const Text(
+                    'Share a Question',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text(
+                    'Post practice exam questions & answers',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    Navigator.pushNamed(context, CreateQuestionView.routeName);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -65,13 +206,17 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
                   color: Color(0xFF1F2937),
                 ),
               ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.share_rounded, color: Color(0xFF0F5132)),
+                  tooltip: 'Share Content',
+                  onPressed: () => _showSharePicker(context),
+                ),
+              ],
             ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isDesktop = constraints.maxWidth >= 1024;
-            final isTablet = constraints.maxWidth >= 600 && !isDesktop;
-
             return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1200),
@@ -79,16 +224,38 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (widget.isTab)
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
-                        child: Text(
-                          'Shared With Me',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1F2937),
-                            letterSpacing: -0.3,
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Shared With Me',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1F2937),
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () => _showSharePicker(context),
+                              icon: const Icon(Icons.share_rounded, size: 16),
+                              label: const Text('Share'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0F5132),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
@@ -401,3 +568,4 @@ class _SharedCard extends StatelessWidget {
     );
   }
 }
+

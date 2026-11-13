@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../domain/models/subject_model.dart';
-import '../viewmodels/subject_viewmodel.dart';
-import '../widgets/add_edit_subject_dialog.dart';
-import '../../notes/presentation/views/notes_view.dart';
-import '../../materials/presentation/views/materials_view.dart';
-import '../../questions/presentation/views/create_question_view.dart';
-import '../../assignments/presentation/views/assignments_view.dart';
+import 'package:campusflow/features/subjects/domain/models/subject_model.dart';
+import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
+import 'package:campusflow/features/subjects/presentation/widgets/add_edit_subject_dialog.dart';
+import 'package:campusflow/features/notes/presentation/views/notes_view.dart';
+import 'package:campusflow/features/materials/presentation/views/materials_view.dart';
+import 'package:campusflow/features/questions/presentation/views/questions_view.dart';
+import 'package:campusflow/features/assignments/presentation/views/assignments_view.dart';
 
 class SubjectDetailView extends StatefulWidget {
   static const String routeName = '/subject-detail';
@@ -333,9 +333,14 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                         subtitle: 'Review & practice past questions',
                         color: const Color(0xFF0F5132),
                         onTap: () {
-                          Navigator.pushNamed(
+                          Navigator.push(
                             context,
-                            CreateQuestionView.routeName,
+                            MaterialPageRoute(
+                              builder: (_) => QuestionsView(
+                                subjectId: subject.id,
+                                subjectName: subject.name,
+                              ),
+                            ),
                           );
                         },
                       ),

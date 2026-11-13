@@ -841,3 +841,72 @@ All endpoints require `Authorization: Bearer <token>`.
 ### 5. Delete Assignment
 - **Route:** `DELETE /assignments/:id`
 - **Access:** Protected
+
+
+---
+
+## Questions Endpoints
+
+All endpoints require `Authorization: Bearer <token>`.
+
+### 1. Create Question
+- **Route:** `POST /questions`
+- **Access:** Protected
+- **Request Body:**
+```json
+{
+  "subjectId": "uuid-optional",
+  "question": "What is normalization in DBMS?",
+  "answer": "Normalization is the process of organizing data in a database...",
+  "imageUrl": null,
+  "isStarred": true,
+  "isShared": true
+}
+```
+- **Success Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Question created successfully.",
+  "data": {
+    "question": {
+      "id": "uuid-here",
+      "user_id": "user-uuid",
+      "subject_id": "subject-uuid",
+      "question": "What is normalization in DBMS?",
+      "answer": "Normalization is the process of organizing data...",
+      "image_url": null,
+      "is_starred": true,
+      "is_shared": true,
+      "created_at": "2026-11-11T12:00:00.000Z",
+      "updated_at": "2026-11-11T12:00:00.000Z"
+    }
+  }
+}
+```
+
+### 2. Get Questions
+- **Route:** `GET /questions?subjectId=:id&filter=all|starred|shared`
+- **Access:** Protected
+- **Success Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Questions retrieved successfully.",
+  "data": {
+    "questions": []
+  }
+}
+```
+
+### 3. Update Question
+- **Route:** `PUT /questions/:id`
+- **Access:** Protected
+
+### 4. Toggle Star Status
+- **Route:** `PATCH /questions/:id/star`
+- **Access:** Protected
+
+### 5. Delete Question
+- **Route:** `DELETE /questions/:id`
+- **Access:** Protected

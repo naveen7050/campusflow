@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:campusflow/app/theme/theme_viewmodel.dart';
 
 class SettingsView extends StatefulWidget {
   static const String routeName = '/settings';
@@ -10,11 +12,12 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
-  String _selectedTheme = 'System'; // 'Light', 'Dark', 'System'
   bool _enableNotifications = true;
 
   @override
   Widget build(BuildContext context) {
+    final themeVm = context.watch<ThemeViewModel>();
+    final currentTheme = themeVm.themeModeName;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -54,20 +57,20 @@ class _SettingsViewState extends State<SettingsView> {
                 _RadioThemeItem(
                   title: 'Light',
                   value: 'Light',
-                  groupValue: _selectedTheme,
-                  onChanged: (val) => setState(() => _selectedTheme = val),
+                  groupValue: currentTheme,
+                  onChanged: (val) => themeVm.setThemeByName(val),
                 ),
                 _RadioThemeItem(
                   title: 'Dark',
                   value: 'Dark',
-                  groupValue: _selectedTheme,
-                  onChanged: (val) => setState(() => _selectedTheme = val),
+                  groupValue: currentTheme,
+                  onChanged: (val) => themeVm.setThemeByName(val),
                 ),
                 _RadioThemeItem(
                   title: 'System',
                   value: 'System',
-                  groupValue: _selectedTheme,
-                  onChanged: (val) => setState(() => _selectedTheme = val),
+                  groupValue: currentTheme,
+                  onChanged: (val) => themeVm.setThemeByName(val),
                 ),
                 const SizedBox(height: 24),
 
@@ -282,3 +285,4 @@ class _SettingsTile extends StatelessWidget {
     );
   }
 }
+

@@ -57,6 +57,14 @@ const AuthController = {
 
       const token = generateToken(user);
 
+      // Seed starter subjects, notes, and questions for rich initial experience
+      try {
+        const { seedUserData } = require('../scripts/seed');
+        await seedUserData(user.id);
+      } catch (seedErr) {
+        console.warn('Starter data seeding skipped:', seedErr.message);
+      }
+
       return res.status(201).json({
         success: true,
         message: 'User registered successfully.',
