@@ -6,7 +6,17 @@ class AppConstants {
 
   static const String appName = 'CampusFlow';
 
+  /// Cloud production backend URL. Replace with your deployed URL.
+  static const String cloudApiUrl = '';
+
   static String get apiBaseUrl {
+    const customUrl = String.fromEnvironment('API_URL');
+    if (customUrl.isNotEmpty) {
+      return customUrl;
+    }
+    if (cloudApiUrl.isNotEmpty) {
+      return cloudApiUrl;
+    }
     if (kIsWeb) {
       return 'http://localhost:5000/api';
     }
