@@ -11,6 +11,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.lightBackground,
+      cardColor: Colors.white,
       colorScheme: const ColorScheme.light(
         primary: AppColors.lightAccent,
         secondary: AppColors.lightAccentSubtle,
@@ -76,6 +77,29 @@ class AppTheme {
           textStyle: AppTextStyles.button,
         ),
       ),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: AppColors.lightBorder),
+        ),
+      ),
+      bottomAppBarTheme: const BottomAppBarThemeData(
+        color: Colors.white,
+        elevation: 8,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+      ),
     );
   }
 
@@ -84,6 +108,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.darkBackground,
+      cardColor: AppColors.darkSurface,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.darkAccent,
         secondary: AppColors.darkAccentSubtle,
@@ -101,7 +126,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.darkSurface,
+        fillColor: AppColors.darkSecondarySurface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
           vertical: AppSpacing.md,
@@ -148,6 +173,29 @@ class AppTheme {
           ),
           textStyle: AppTextStyles.button,
         ),
+      ),
+      cardTheme: CardThemeData(
+        color: AppColors.darkSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: AppColors.darkBorder),
+        ),
+      ),
+      bottomAppBarTheme: const BottomAppBarThemeData(
+        color: AppColors.darkSurface,
+        elevation: 8,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.darkSurface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.darkSurface,
+        surfaceTintColor: Colors.transparent,
       ),
     );
   }

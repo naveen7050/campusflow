@@ -1,9 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
 import 'package:campusflow/features/materials/presentation/viewmodels/material_viewmodel.dart';
 import 'package:campusflow/features/materials/domain/models/material_model.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
 
 class AddMaterialDialog extends StatefulWidget {
   final String? initialSubjectId;
@@ -42,7 +43,7 @@ class AddMaterialDialog extends StatefulWidget {
       return showModalBottomSheet<bool>(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
+        backgroundColor: context.cardBg,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -190,10 +191,10 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                   widget.initialMaterial != null
                       ? 'Edit Study Material'
                       : 'Upload Study Material',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2937),
+                    color: context.textPrimary,
                     letterSpacing: -0.3,
                   ),
                 ),

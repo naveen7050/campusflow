@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/widgets/app_background.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import 'register_view.dart';
 
@@ -48,10 +49,11 @@ class _LoginViewState extends State<LoginView> {
     final isLoading = authViewModel.status == AuthStatus.loading;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
+      backgroundColor: context.scaffoldBg,
+      body: AppBackground(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
@@ -69,44 +71,44 @@ class _LoginViewState extends State<LoginView> {
                             width: 38,
                             height: 38,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEBF5E9),
+                              color: context.iconContainerBg,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               LucideIcons.bookOpen,
                               size: 22,
-                              color: Color(0xFF0F5132),
+                              color: context.primaryAccent,
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'CampusFlow',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F5132),
+                              color: context.primaryAccent,
                             ),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
+                    Text(
                       'Welcome Back',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1F2937),
+                        color: context.textPrimary,
                         letterSpacing: -0.5,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       'Sign in to continue',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF6B7280),
+                        color: context.textSecondary,
                         height: 1.4,
                       ),
                       textAlign: TextAlign.center,
@@ -397,6 +399,7 @@ class _LoginViewState extends State<LoginView> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

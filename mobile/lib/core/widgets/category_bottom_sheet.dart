@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
 
 class CategoryBottomSheet extends StatefulWidget {
   final List<String> categories;
@@ -44,9 +45,9 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: context.cardBg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: SafeArea(
@@ -61,7 +62,7 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
+                  color: context.cardBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -73,18 +74,18 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
               children: [
                 IconButton(
                   icon: const Icon(LucideIcons.chevronLeft, size: 20),
-                  color: const Color(0xFF1F2937),
+                  color: context.textPrimary,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'Select Category',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2937),
+                    color: context.textPrimary,
                   ),
                 ),
               ],
@@ -110,8 +111,8 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: _selected == cat
-                                ? const Color(0xFF0F5132)
-                                : const Color(0xFFD1D5DB),
+                                ? context.primaryAccent
+                                : context.cardBorder,
                             width: 2,
                           ),
                         ),
@@ -120,9 +121,9 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
                                 child: Container(
                                   width: 12,
                                   height: 12,
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Color(0xFF0F5132),
+                                    color: context.primaryAccent,
                                   ),
                                 ),
                               )
@@ -136,7 +137,7 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
                           fontWeight: _selected == cat
                               ? FontWeight.w600
                               : FontWeight.w400,
-                          color: const Color(0xFF1F2937),
+                          color: context.textPrimary,
                         ),
                       ),
                     ],
@@ -151,7 +152,7 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context, _selected),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F5132),
+                  backgroundColor: context.primaryAccent,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

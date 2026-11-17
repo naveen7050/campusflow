@@ -9,6 +9,7 @@ import 'package:campusflow/features/subjects/presentation/viewmodels/subject_vie
 import 'package:campusflow/features/questions/presentation/viewmodels/question_viewmodel.dart';
 import 'package:campusflow/features/questions/domain/models/question_model.dart';
 import 'package:campusflow/core/widgets/category_bottom_sheet.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
 
 class CreateQuestionView extends StatefulWidget {
   static const String routeName = '/create-question';
@@ -131,7 +132,7 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: context.cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -365,21 +366,21 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
     final subjects = context.watch<SubjectViewModel>().subjects;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.scaffoldBg,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.chevronLeft, size: 20),
-          color: const Color(0xFF1F2937),
+          color: context.textPrimary,
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.initialQuestion != null ? 'Edit Question' : 'Create Question',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
+            color: context.textPrimary,
           ),
         ),
       ),

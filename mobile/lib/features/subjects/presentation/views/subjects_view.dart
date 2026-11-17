@@ -1,6 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
+import 'package:campusflow/core/widgets/app_search_bar.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
 import '../viewmodels/subject_viewmodel.dart';
 import '../widgets/add_edit_subject_dialog.dart';
 import '../widgets/subject_card.dart';
@@ -43,26 +46,30 @@ class _SubjectsViewState extends State<SubjectsView> {
     final viewModel = context.watch<SubjectViewModel>();
     final subjects = viewModel.filteredSubjects;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final titleColor = isDark ? Colors.white : const Color(0xFF1F2937);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       appBar: widget.isTab
           ? null
           : AppBar(
-              backgroundColor: Colors.white,
+              backgroundColor: bgColor,
               elevation: 0,
               leading: Navigator.canPop(context)
                   ? IconButton(
                       icon: const Icon(LucideIcons.chevronLeft, size: 20),
-                      color: const Color(0xFF1F2937),
+                      color: titleColor,
                       onPressed: () => Navigator.pop(context),
                     )
                   : null,
-              title: const Text(
+              title: Text(
                 'Subjects',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2937),
+                  color: titleColor,
                 ),
               ),
               actions: [
@@ -74,136 +81,107 @@ class _SubjectsViewState extends State<SubjectsView> {
                 ),
               ],
             ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: const Color(0xFF0F5132),
-          onRefresh: () => viewModel.fetchSubjects(),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final isDesktop = constraints.maxWidth >= 1024;
-              final isTablet = constraints.maxWidth >= 600 && !isDesktop;
+      body: AppBackground(
+        child: SafeArea(
+          child: RefreshIndicator(
+            color: const Color(0xFF0F5132),
+            onRefresh: () => viewModel.fetchSubjects(),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isDesktop = constraints.maxWidth >= 1024;
+                final isTablet = constraints.maxWidth >= 600 && !isDesktop;
 
-              return Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  child: Column(
-                    children: [
-                      if (widget.isTab)
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Column(
+                      children: [
+                        if (widget.isTab)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Explore Subjects',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: context.textPrimary,
+                                    letterSpacing: -0.3,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    LucideIcons.plusCircle,
+                                    color: context.primaryAccent,
+                                  ),
+                                  tooltip: 'Add Subject',
+                                  onPressed: _openAddSubject,
+                                ),
+                              ],
+                            ),
+                          ),
+                        // Search and Filter Section
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                          child: Column(
                             children: [
-                              const Text(
-                                'Explore Subjects',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1F2937),
-                                  letterSpacing: -0.3,
-                                ),
+                              // Search bar
+                              AppSearchBar(
+                                controller: _searchController,
+                                hintText: 'Search subjects, code, or department...',
+                                onChanged: (q) => viewModel.setSearchQuery(q),
+                                onClear: () {
+                                  _searchController.clear();
+                                  viewModel.setSearchQuery('');
+                                },
                               ),
-                              IconButton(
-                                icon: const Icon(
-                                  LucideIcons.plusCircle,
-                                  color: Color(0xFF0F5132),
+                              const SizedBox(height: 12),
+
+                              // Semester Filter Chips
+                              SizedBox(
+                                height: 36,
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  children: [
+                                    _FilterChip(
+                                      label: 'All',
+                                      isSelected: viewModel.selectedSemester == null,
+                                      onTap: () => viewModel.setSemesterFilter(null),
+                                    ),
+                                    ...List.generate(8, (i) {
+                                      final sem = i + 1;
+                                      return _FilterChip(
+                                        label: 'Sem $sem',
+                                        isSelected:
+                                            viewModel.selectedSemester == sem,
+                                        onTap: () =>
+                                            viewModel.setSemesterFilter(sem),
+                                      );
+                                    }),
+                                  ],
                                 ),
-                                tooltip: 'Add Subject',
-                                onPressed: _openAddSubject,
                               ),
                             ],
                           ),
                         ),
-                      // Search and Filter Section
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                        child: Column(
-                          children: [
-                            // Search bar
-                            Container(
-                              height: 46,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF3F4F6),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: TextField(
-                                controller: _searchController,
-                                onChanged: (q) => viewModel.setSearchQuery(q),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF1F2937),
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: 'Search subjects, code, or department...',
-                                  hintStyle: const TextStyle(
-                                    color: Color(0xFF9CA3AF),
-                                    fontSize: 13,
-                                  ),
-                                  prefixIcon: const Icon(
-                                    LucideIcons.search,
-                                    color: Color(0xFF9CA3AF),
-                                    size: 20,
-                                  ),
-                                  suffixIcon: _searchController.text.isNotEmpty
-                                      ? IconButton(
-                                          icon: const Icon(LucideIcons.x, size: 18),
-                                          onPressed: () {
-                                            _searchController.clear();
-                                            viewModel.setSearchQuery('');
-                                          },
-                                        )
-                                      : null,
-                                  border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
 
-                            // Semester Filter Chips
-                            SizedBox(
-                              height: 36,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  _FilterChip(
-                                    label: 'All',
-                                    isSelected: viewModel.selectedSemester == null,
-                                    onTap: () => viewModel.setSemesterFilter(null),
-                                  ),
-                                  ...List.generate(8, (i) {
-                                    final sem = i + 1;
-                                    return _FilterChip(
-                                      label: 'Sem $sem',
-                                      isSelected:
-                                          viewModel.selectedSemester == sem,
-                                      onTap: () =>
-                                          viewModel.setSemesterFilter(sem),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                          ],
+                        // Content Section
+                        Expanded(
+                          child: _buildBody(
+                            viewModel,
+                            subjects,
+                            isTablet: isTablet,
+                            isDesktop: isDesktop,
+                          ),
                         ),
-                      ),
-
-                      // Content Section
-                      Expanded(
-                        child: _buildBody(
-                          viewModel,
-                          subjects,
-                          isTablet: isTablet,
-                          isDesktop: isDesktop,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -407,8 +385,11 @@ class _FilterChip extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F5132) : const Color(0xFFF3F4F6),
+          color: isSelected ? context.primaryAccent : context.cardBg,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? context.primaryAccent : context.cardBorder,
+          ),
         ),
         child: Center(
           child: Text(
@@ -416,7 +397,7 @@ class _FilterChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              color: isSelected ? Colors.white : const Color(0xFF4B5563),
+              color: isSelected ? Colors.white : context.textPrimary,
             ),
           ),
         ),

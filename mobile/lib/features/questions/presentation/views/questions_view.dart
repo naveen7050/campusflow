@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
+import 'package:campusflow/core/widgets/app_search_bar.dart';
 import 'package:campusflow/core/widgets/app_network_or_memory_image.dart';
+import 'package:campusflow/core/widgets/app_dialogs.dart';
 import 'package:campusflow/features/questions/domain/models/question_model.dart';
 import 'package:campusflow/features/questions/presentation/viewmodels/question_viewmodel.dart';
 import 'create_question_view.dart';
@@ -40,15 +44,19 @@ class _QuestionsViewState extends State<QuestionsView> {
     final vm = context.watch<QuestionViewModel>();
     final questions = vm.filteredQuestions;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final titleColor = isDark ? Colors.white : const Color(0xFF1F2937);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: bgColor,
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
                 icon: const Icon(LucideIcons.chevronLeft, size: 20),
-                color: const Color(0xFF1F2937),
+                color: titleColor,
                 onPressed: () => Navigator.pop(context),
               )
             : null,
@@ -56,15 +64,16 @@ class _QuestionsViewState extends State<QuestionsView> {
           widget.subjectName != null
               ? '${widget.subjectName} Questions'
               : 'Question Bank',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
+            color: titleColor,
           ),
         ),
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
+      body: AppBackground(
+        child: SafeArea(
+          child: LayoutBuilder(
           builder: (context, constraints) {
             final isDesktop = constraints.maxWidth >= 1024;
             final isTablet = constraints.maxWidth >= 600 && !isDesktop;
@@ -79,37 +88,14 @@ class _QuestionsViewState extends State<QuestionsView> {
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                       child: Column(
                         children: [
-                          Container(
-                            height: 46,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: vm.setSearchQuery,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF1F2937),
-                              ),
-                              decoration: const InputDecoration(
-                                hintText: 'Search questions & answers...',
-                                hintStyle: TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF9CA3AF),
-                                ),
-                                prefixIcon: const Icon(
-                                  LucideIcons.search,
-                                  color: Color(0xFF9CA3AF),
-                                  size: 18,
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                              ),
-                            ),
+                          AppSearchBar(
+                            controller: _searchController,
+                            hintText: 'Search questions & answers...',
+                            onChanged: vm.setSearchQuery,
+                            onClear: () {
+                              _searchController.clear();
+                              vm.setSearchQuery('');
+                            },
                           ),
                           const SizedBox(height: 12),
                           Row(
@@ -206,7 +192,7 @@ class _QuestionsViewState extends State<QuestionsView> {
                                                 80,
                                               ),
                                               itemCount: questions.length,
-                                              separatorBuilder: (_, __) =>
+                                              separatorBuilder: (context, index) =>
                                                   const SizedBox(height: 12),
                                               itemBuilder: (context, index) {
                                                 return _QuestionCard(
@@ -223,7 +209,8 @@ class _QuestionsViewState extends State<QuestionsView> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+    ),
+    floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, CreateQuestionView.routeName);
         },
@@ -320,15 +307,18 @@ class _FilterChipTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F5132) : const Color(0xFFF3F4F6),
+          color: isSelected ? context.primaryAccent : context.cardBg,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? context.primaryAccent : context.cardBorder,
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF4B5563),
+            color: isSelected ? Colors.white : context.textPrimary,
           ),
         ),
       ),
@@ -356,9 +346,9 @@ class _QuestionCardState extends State<_QuestionCard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.cardBorder),
         boxShadow: const [
           BoxShadow(
             color: Color(0x05000000),
@@ -381,15 +371,15 @@ class _QuestionCardState extends State<_QuestionCard> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEBF5E9),
+                    color: context.iconContainerBg,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     q.subjectName!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F5132),
+                      color: context.primaryAccent,
                     ),
                   ),
                 )
@@ -446,7 +436,7 @@ class _QuestionCardState extends State<_QuestionCard> {
                     ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    onSelected: (val) {
+                    onSelected: (val) async {
                       if (val == 'edit') {
                         Navigator.push(
                           context,
@@ -457,38 +447,20 @@ class _QuestionCardState extends State<_QuestionCard> {
                           ),
                         );
                       } else if (val == 'delete') {
-                        showDialog(
-                          context: context,
-                          builder: (dialogCtx) => AlertDialog(
-                            title: const Text('Delete Question'),
-                            content: const Text(
-                              'Are you sure you want to delete this question?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(dialogCtx),
-                                child: const Text('Cancel'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(dialogCtx);
-                                  vm.deleteQuestion(q.id);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Question deleted successfully.'),
-                                      backgroundColor: Color(0xFF0F5132),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: const Text('Delete'),
-                              ),
-                            ],
-                          ),
+                        final confirm = await AppDialogs.showDeleteConfirm(
+                          context,
+                          itemType: 'Question',
+                          itemName: q.question,
                         );
+                        if (confirm == true && context.mounted) {
+                          vm.deleteQuestion(q.id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Question deleted successfully.'),
+                              backgroundColor: Color(0xFF0F5132),
+                            ),
+                          );
+                        }
                       }
                     },
                     itemBuilder: (context) => [
@@ -523,10 +495,10 @@ class _QuestionCardState extends State<_QuestionCard> {
           // Question Text
           Text(
             q.question,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1F2937),
+              color: context.textPrimary,
             ),
           ),
           const SizedBox(height: 10),

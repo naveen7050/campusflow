@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
@@ -11,6 +11,9 @@ import 'package:campusflow/features/questions/presentation/viewmodels/question_v
 import 'package:campusflow/features/questions/presentation/views/questions_view.dart';
 import 'package:campusflow/features/assignments/presentation/viewmodels/assignment_viewmodel.dart';
 import 'package:campusflow/features/assignments/presentation/views/assignments_view.dart';
+import 'package:campusflow/core/widgets/app_search_bar.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
 
 class SearchView extends StatefulWidget {
   static const String routeName = '/search';
@@ -109,74 +112,46 @@ class _SearchViewState extends State<SearchView> {
         matchingQuestions.isNotEmpty ||
         matchingAssignments.isNotEmpty;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final iconColor = isDark ? Colors.white : const Color(0xFF1F2937);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: bgColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.chevronLeft, size: 20),
-          color: const Color(0xFF1F2937),
+          color: iconColor,
           onPressed: () => Navigator.pop(context),
         ),
-        title: Container(
-          height: 44,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: TextField(
-            controller: _searchController,
-            autofocus: true,
-            onChanged: _onSearch,
-            onSubmitted: (val) {
-              final term = val.trim();
-              if (term.isNotEmpty) {
-                setState(() {
-                  _recentSearches.remove(term);
-                  _recentSearches.insert(0, term);
-                  if (_recentSearches.length > 8) {
-                    _recentSearches.removeLast();
-                  }
-                });
-              }
-            },
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF1F2937),
-            ),
-            decoration: InputDecoration(
-              hintText: 'Search...',
-              hintStyle: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF9CA3AF),
-              ),
-              prefixIcon: const Icon(
-                LucideIcons.search,
-                color: Color(0xFF9CA3AF),
-                size: 18,
-              ),
-              suffixIcon: _query.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(LucideIcons.x, size: 16),
-                      color: const Color(0xFF9CA3AF),
-                      onPressed: () {
-                        _searchController.clear();
-                        _onSearch('');
-                      },
-                    )
-                  : null,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 12,
-              ),
-            ),
-          ),
+        title: AppSearchBar(
+          controller: _searchController,
+          autofocus: true,
+          hintText: 'Search...',
+          onChanged: _onSearch,
+          onSubmitted: (val) {
+            final term = val.trim();
+            if (term.isNotEmpty) {
+              setState(() {
+                _recentSearches.remove(term);
+                _recentSearches.insert(0, term);
+                if (_recentSearches.length > 8) {
+                  _recentSearches.removeLast();
+                }
+              });
+            }
+          },
+          onClear: () {
+            _searchController.clear();
+            _onSearch('');
+          },
         ),
       ),
-      body: SafeArea(
-        child: Center(
+      body: AppBackground(
+        child: SafeArea(
+          child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 800),
             child: _query.isEmpty
@@ -187,12 +162,12 @@ class _SearchViewState extends State<SearchView> {
                     ),
                     children: [
                       // Recent Searches (Screen 17 Mockup)
-                      const Text(
+                      Text(
                         'Recent Searches',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -202,16 +177,16 @@ class _SearchViewState extends State<SearchView> {
                           return ActionChip(
                             label: Text(
                               term,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFF4B5563),
+                                color: context.textPrimary,
                               ),
                             ),
-                            backgroundColor: const Color(0xFFF3F4F6),
+                            backgroundColor: context.cardBg,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
-                              side: const BorderSide(
-                                color: Color(0xFFE5E7EB),
+                              side: BorderSide(
+                                color: context.cardBorder,
                               ),
                             ),
                             onPressed: () => _applyRecentSearch(term),
@@ -221,21 +196,21 @@ class _SearchViewState extends State<SearchView> {
                       const SizedBox(height: 24),
 
                       // Categories (Screen 17 Mockup)
-                      const Text(
+                      Text(
                         'Categories',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 12),
                       if (subjects.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
                           child: Text(
                             'No categories created yet.',
-                            style: TextStyle(color: Color(0xFF9CA3AF)),
+                            style: TextStyle(color: context.textSecondary),
                           ),
                         )
                       else
@@ -243,7 +218,7 @@ class _SearchViewState extends State<SearchView> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: subjects.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (context, index) =>
                               const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final sub = subjects[index];
@@ -252,11 +227,11 @@ class _SearchViewState extends State<SearchView> {
                               code: sub.code,
                               onTap: () {
                                 Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        SubjectDetailView(subject: sub),
-                                  ),
+                                   context,
+                                   MaterialPageRoute(
+                                     builder: (_) =>
+                                         SubjectDetailView(subject: sub),
+                                   ),
                                 );
                               },
                             );
@@ -269,18 +244,18 @@ class _SearchViewState extends State<SearchView> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               LucideIcons.searchX,
                               size: 48,
-                              color: Color(0xFF9CA3AF),
+                              color: context.textSecondary,
                             ),
                             const SizedBox(height: 12),
                             Text(
                               'No results found for "$_query"',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF1F2937),
+                                color: context.textPrimary,
                               ),
                             ),
                           ],
@@ -384,18 +359,19 @@ class _SearchViewState extends State<SearchView> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, top: 4),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF6B7280),
+          color: context.textSecondary,
           letterSpacing: 0.2,
         ),
       ),
@@ -422,9 +398,9 @@ class _CategoryItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFB),
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: context.cardBorder),
         ),
         child: Row(
           children: [
@@ -432,40 +408,40 @@ class _CategoryItem extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: const Color(0xFFEBF5E9),
+                color: context.iconContainerBg,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
+              child: Icon(
                 LucideIcons.bookOpen,
                 size: 18,
-                color: Color(0xFF0F5132),
+                color: context.primaryAccent,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1F2937),
+                  color: context.textPrimary,
                 ),
               ),
             ),
             if (code != null) ...[
               Text(
                 code!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF6B7280),
+                  color: context.textSecondary,
                 ),
               ),
               const SizedBox(width: 8),
             ],
-            const Icon(
+            Icon(
               LucideIcons.chevronRight,
               size: 18,
-              color: Color(0xFF9CA3AF),
+              color: context.textSecondary,
             ),
           ],
         ),
@@ -494,31 +470,31 @@ class _SearchResultTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.cardBorder),
       ),
       child: ListTile(
-        leading: Icon(icon, color: iconColor),
+        leading: Icon(icon, color: context.primaryAccent),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1F2937),
+            color: context.textPrimary,
           ),
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
-            color: Color(0xFF6B7280),
+            color: context.textSecondary,
           ),
         ),
-        trailing: const Icon(
+        trailing: Icon(
           LucideIcons.chevronRight,
           size: 18,
-          color: Color(0xFF9CA3AF),
+          color: context.textSecondary,
         ),
         onTap: onTap,
       ),

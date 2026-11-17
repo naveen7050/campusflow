@@ -1,7 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/app/theme/theme_viewmodel.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
 
 class SettingsView extends StatefulWidget {
   static const String routeName = '/settings';
@@ -19,69 +21,97 @@ class _SettingsViewState extends State<SettingsView> {
   Widget build(BuildContext context) {
     final themeVm = context.watch<ThemeViewModel>();
     final currentTheme = themeVm.themeModeName;
+
+    final bgColor = context.scaffoldBg;
+    final cardBg = context.cardBg;
+    final borderColor = context.cardBorder;
+    final textColor = context.textPrimary;
+    final subTextColor = context.textSecondary;
+    final accentColor = context.primaryAccent;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: bgColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.chevronLeft, size: 20),
-          color: const Color(0xFF1F2937),
+          color: textColor,
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Settings',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
+            color: textColor,
           ),
         ),
       ),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: ListView(
+      body: AppBackground(
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               children: [
-                // Appearance Section (Matches Screen 16)
-                const Text(
+                // Appearance Section
+                Text(
                   'Appearance',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2937),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 8),
-                _RadioThemeItem(
-                  title: 'Light',
-                  value: 'Light',
-                  groupValue: currentTheme,
-                  onChanged: (val) => themeVm.setThemeByName(val),
-                ),
-                _RadioThemeItem(
-                  title: 'Dark',
-                  value: 'Dark',
-                  groupValue: currentTheme,
-                  onChanged: (val) => themeVm.setThemeByName(val),
-                ),
-                _RadioThemeItem(
-                  title: 'System',
-                  value: 'System',
-                  groupValue: currentTheme,
-                  onChanged: (val) => themeVm.setThemeByName(val),
+                Container(
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: borderColor),
+                  ),
+                  child: Column(
+                    children: [
+                      _RadioThemeItem(
+                        title: 'Light',
+                        value: 'Light',
+                        groupValue: currentTheme,
+                        textColor: textColor,
+                        accentColor: accentColor,
+                        onChanged: (val) => themeVm.setThemeByName(val),
+                      ),
+                      Divider(height: 1, thickness: 1, color: borderColor),
+                      _RadioThemeItem(
+                        title: 'Dark',
+                        value: 'Dark',
+                        groupValue: currentTheme,
+                        textColor: textColor,
+                        accentColor: accentColor,
+                        onChanged: (val) => themeVm.setThemeByName(val),
+                      ),
+                      Divider(height: 1, thickness: 1, color: borderColor),
+                      _RadioThemeItem(
+                        title: 'System',
+                        value: 'System',
+                        groupValue: currentTheme,
+                        textColor: textColor,
+                        accentColor: accentColor,
+                        onChanged: (val) => themeVm.setThemeByName(val),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 24),
 
                 // Notifications Section
-                const Text(
+                Text(
                   'Notifications',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2937),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -91,24 +121,25 @@ class _SettingsViewState extends State<SettingsView> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                    border: Border.all(color: borderColor),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Enable Notifications',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF1F2937),
+                          color: textColor,
                         ),
                       ),
                       Switch(
                         value: _enableNotifications,
-                        activeColor: const Color(0xFF0F5132),
+                        activeThumbColor: accentColor,
+                        activeTrackColor: accentColor.withValues(alpha: 0.4),
                         onChanged: (val) =>
                             setState(() => _enableNotifications = val),
                       ),
@@ -118,6 +149,9 @@ class _SettingsViewState extends State<SettingsView> {
                 const SizedBox(height: 10),
                 _SettingsTile(
                   title: 'Manage Notifications',
+                  cardBg: cardBg,
+                  borderColor: borderColor,
+                  textColor: textColor,
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -129,12 +163,12 @@ class _SettingsViewState extends State<SettingsView> {
                 const SizedBox(height: 24),
 
                 // App Info Section
-                const Text(
+                Text(
                   'App Info',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2937),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -144,11 +178,11 @@ class _SettingsViewState extends State<SettingsView> {
                     vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
+                    color: cardBg,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                    border: Border.all(color: borderColor),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
@@ -156,7 +190,7 @@ class _SettingsViewState extends State<SettingsView> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF1F2937),
+                          color: textColor,
                         ),
                       ),
                       Text(
@@ -164,7 +198,7 @@ class _SettingsViewState extends State<SettingsView> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF6B7280),
+                          color: subTextColor,
                         ),
                       ),
                     ],
@@ -175,20 +209,25 @@ class _SettingsViewState extends State<SettingsView> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _RadioThemeItem extends StatelessWidget {
   final String title;
   final String value;
   final String groupValue;
+  final Color textColor;
+  final Color accentColor;
   final ValueChanged<String> onChanged;
 
   const _RadioThemeItem({
     required this.title,
     required this.value,
     required this.groupValue,
+    required this.textColor,
+    required this.accentColor,
     required this.onChanged,
   });
 
@@ -199,7 +238,7 @@ class _RadioThemeItem extends StatelessWidget {
       onTap: () => onChanged(value),
       borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Row(
           children: [
             Container(
@@ -208,9 +247,7 @@ class _RadioThemeItem extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF0F5132)
-                      : const Color(0xFFD1D5DB),
+                  color: isSelected ? accentColor : const Color(0xFF9CA3AF),
                   width: 2,
                 ),
               ),
@@ -219,9 +256,9 @@ class _RadioThemeItem extends StatelessWidget {
                       child: Container(
                         width: 10,
                         height: 10,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0xFF0F5132),
+                          color: accentColor,
                         ),
                       ),
                     )
@@ -233,7 +270,7 @@ class _RadioThemeItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: const Color(0xFF1F2937),
+                color: textColor,
               ),
             ),
           ],
@@ -245,10 +282,16 @@ class _RadioThemeItem extends StatelessWidget {
 
 class _SettingsTile extends StatelessWidget {
   final String title;
+  final Color cardBg;
+  final Color borderColor;
+  final Color textColor;
   final VoidCallback onTap;
 
   const _SettingsTile({
     required this.title,
+    required this.cardBg,
+    required this.borderColor,
+    required this.textColor,
     required this.onTap,
   });
 
@@ -260,19 +303,19 @@ class _SettingsTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFB),
+          color: cardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: borderColor),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1F2937),
+                color: textColor,
               ),
             ),
             const Icon(
@@ -286,4 +329,3 @@ class _SettingsTile extends StatelessWidget {
     );
   }
 }
-

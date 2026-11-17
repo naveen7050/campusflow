@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/core/widgets/app_network_or_memory_image.dart';
+import 'package:campusflow/core/widgets/app_search_bar.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
 import 'package:campusflow/features/notes/presentation/viewmodels/note_viewmodel.dart';
 import 'package:campusflow/features/materials/presentation/viewmodels/material_viewmodel.dart';
 import 'package:campusflow/features/questions/presentation/viewmodels/question_viewmodel.dart';
@@ -74,7 +77,7 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
-      backgroundColor: Colors.white,
+      backgroundColor: context.cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -227,7 +230,7 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
-      backgroundColor: Colors.white,
+      backgroundColor: context.cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -404,7 +407,7 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
-      backgroundColor: Colors.white,
+      backgroundColor: context.cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -561,7 +564,7 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
-      backgroundColor: Colors.white,
+      backgroundColor: context.cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -874,26 +877,30 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
       return matchesTab && matchesSearch;
     }).toList();
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final titleColor = isDark ? Colors.white : const Color(0xFF1F2937);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       appBar: widget.isTab
           ? null
           : AppBar(
-              backgroundColor: Colors.white,
+              backgroundColor: bgColor,
               elevation: 0,
               leading: Navigator.canPop(context)
                   ? IconButton(
                       icon: const Icon(LucideIcons.chevronLeft, size: 20),
-                      color: const Color(0xFF1F2937),
+                      color: titleColor,
                       onPressed: () => Navigator.pop(context),
                     )
                   : null,
-              title: const Text(
+              title: Text(
                 'Shared With Me',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2937),
+                  color: titleColor,
                 ),
               ),
               actions: [
@@ -904,8 +911,9 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
                 ),
               ],
             ),
-      body: SafeArea(
-        child: RefreshIndicator(
+      body: AppBackground(
+        child: SafeArea(
+          child: RefreshIndicator(
           color: const Color(0xFF0F5132),
           onRefresh: _refreshSharedData,
           child: LayoutBuilder(
@@ -922,12 +930,12 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 'Shared With Me',
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1F2937),
+                                  color: context.textPrimary,
                                   letterSpacing: -0.3,
                                 ),
                               ),
@@ -960,36 +968,13 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
                         ),
                         child: Column(
                           children: [
-                            Container(
-                              height: 46,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF3F4F6),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: TextField(
-                                controller: _searchController,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF1F2937),
-                                ),
-                                decoration: const InputDecoration(
-                                  hintText: 'Search shared resources...',
-                                  hintStyle: TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF9CA3AF),
-                                  ),
-                                  prefixIcon: Icon(
-                                    LucideIcons.search,
-                                    color: Color(0xFF9CA3AF),
-                                    size: 18,
-                                  ),
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
-                                  ),
-                                ),
-                              ),
+                            // Search bar
+                            AppSearchBar(
+                              controller: _searchController,
+                              hintText: 'Search shared resources...',
+                              onClear: () {
+                                _searchController.clear();
+                              },
                             ),
                             const SizedBox(height: 12),
 
@@ -1127,8 +1112,9 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _SharedDisplayItem {
@@ -1172,15 +1158,18 @@ class _SharedTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F5132) : const Color(0xFFF3F4F6),
+          color: isSelected ? context.primaryAccent : context.cardBg,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? context.primaryAccent : context.cardBorder,
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF4B5563),
+            color: isSelected ? Colors.white : context.textPrimary,
           ),
         ),
       ),
@@ -1209,6 +1198,13 @@ class _SharedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveIconBg = context.isDarkMode
+        ? iconBg.withValues(alpha: 0.18)
+        : iconBg;
+    final effectiveIconColor = context.isDarkMode
+        ? context.primaryAccent
+        : iconColor;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -1216,9 +1212,9 @@ class _SharedCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: context.cardBorder),
           boxShadow: const [
             BoxShadow(
               color: Color(0x05000000),
@@ -1233,10 +1229,10 @@ class _SharedCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: iconBg,
+                color: effectiveIconBg,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: iconColor, size: 22),
+              child: Icon(icon, color: effectiveIconColor, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -1245,10 +1241,10 @@ class _SharedCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1F2937),
+                      color: context.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -1257,9 +1253,9 @@ class _SharedCard extends StatelessWidget {
                       Flexible(
                         child: Text(
                           sharedBy,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF6B7280),
+                            color: context.textSecondary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1269,17 +1265,17 @@ class _SharedCard extends StatelessWidget {
                       Container(
                         width: 3,
                         height: 3,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF9CA3AF),
+                        decoration: BoxDecoration(
+                          color: context.textSecondary,
                           shape: BoxShape.circle,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         timeAgo,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF9CA3AF),
+                          color: context.textSecondary,
                         ),
                       ),
                     ],
@@ -1287,9 +1283,9 @@ class _SharedCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               LucideIcons.chevronRight,
-              color: Color(0xFF9CA3AF),
+              color: context.textSecondary,
               size: 18,
             ),
           ],

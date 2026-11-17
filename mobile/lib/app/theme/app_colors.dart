@@ -19,18 +19,29 @@ class AppColors {
   static const Color lightBorder = Color(0xFFE5E7EB);
   static const Color lightSecondarySurface = Color(0xFFF3F4F6);
 
-  // Dark Theme Palette
-  static const Color darkBackground = Color(0xFF151614);
-  static const Color darkSurface = Color(0xFF1E1F1C);
-  static const Color darkTextPrimary = Color(0xFFF0F1ED);
-  static const Color darkTextSecondary = Color(0xFF9E9F99);
-  static const Color darkAccent = Color(0xFF5E9977);
-  static const Color darkAccentSubtle = Color(0xFF1B2920);
-  static const Color darkBorder = Color(0xFF2C2D29);
-  static const Color darkSecondarySurface = Color(0xFF252622);
+  // Dark Theme Palette (Clean Neutral Dark)
+  static const Color darkBackground = Color(0xFF121212);
+  static const Color darkSurface = Color(0xFF1E1E1E);
+  static const Color darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color darkTextSecondary = Color(0xFF9E9E9E);
+  static const Color darkAccent = Color(0xFF22C55E);
+  static const Color darkAccentSubtle = Color(0xFF1E3A2B);
+  static const Color darkBorder = Color(0xFF2C2C2C);
+  static const Color darkSecondarySurface = Color(0xFF262626);
 
   // Status Colors
   static const Color success = Color(0xFF387653);
   static const Color warning = Color(0xFFA56A22);
   static const Color error = Color(0xFFB7473D);
+}
+
+extension AppThemeContext on BuildContext {
+  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+  Color get scaffoldBg => isDarkMode ? const Color(0xFF121212) : Colors.white;
+  Color get cardBg => isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFF9FAFB);
+  Color get cardBorder => isDarkMode ? const Color(0xFF2C2C2C) : const Color(0xFFE5E7EB);
+  Color get textPrimary => isDarkMode ? Colors.white : const Color(0xFF1F2937);
+  Color get textSecondary => isDarkMode ? const Color(0xFF9E9E9E) : const Color(0xFF6B7280);
+  Color get iconContainerBg => isDarkMode ? const Color(0xFF262626) : const Color(0xFFEBF5E9);
+  Color get primaryAccent => isDarkMode ? const Color(0xFF22C55E) : const Color(0xFF0F5132);
 }

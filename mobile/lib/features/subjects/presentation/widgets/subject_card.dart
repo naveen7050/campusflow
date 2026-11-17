@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
 import '../../domain/models/subject_model.dart';
 
 class SubjectCard extends StatelessWidget {
@@ -49,12 +50,12 @@ class SubjectCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: context.isDarkMode ? 0.2 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -75,7 +76,7 @@ class SubjectCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: themeColor.withValues(alpha: 0.12),
+                    color: themeColor.withValues(alpha: context.isDarkMode ? 0.22 : 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -92,10 +93,10 @@ class SubjectCard extends StatelessWidget {
                     children: [
                       Text(
                         subject.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                           letterSpacing: -0.2,
                         ),
                         maxLines: 1,
@@ -112,15 +113,15 @@ class SubjectCard extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF3F4F6),
+                                color: context.iconContainerBg,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 subject.code!,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF4B5563),
+                                  color: context.primaryAccent,
                                 ),
                               ),
                             ),
@@ -129,9 +130,9 @@ class SubjectCard extends StatelessWidget {
                           if (subject.semester != null)
                             Text(
                               'Semester ${subject.semester}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF6B7280),
+                                color: context.textSecondary,
                               ),
                             ),
                           if (subject.semester == null &&
@@ -139,9 +140,9 @@ class SubjectCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 subject.department!,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF6B7280),
+                                  color: context.textSecondary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -153,9 +154,9 @@ class SubjectCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(
+                Icon(
                   LucideIcons.chevronRight,
-                  color: Color(0xFF9CA3AF),
+                  color: context.textSecondary,
                   size: 20,
                 ),
               ],

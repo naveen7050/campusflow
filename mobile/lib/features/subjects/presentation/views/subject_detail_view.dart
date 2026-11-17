@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/domain/models/subject_model.dart';
@@ -8,6 +8,9 @@ import 'package:campusflow/features/notes/presentation/views/notes_view.dart';
 import 'package:campusflow/features/materials/presentation/views/materials_view.dart';
 import 'package:campusflow/features/questions/presentation/views/questions_view.dart';
 import 'package:campusflow/features/assignments/presentation/views/assignments_view.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
+import 'package:campusflow/core/widgets/app_dialogs.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
 
 class SubjectDetailView extends StatefulWidget {
   static const String routeName = '/subject-detail';
@@ -69,28 +72,10 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
   Future<void> _handleDelete() async {
     if (_subject == null) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Subject'),
-        content: Text(
-          'Are you sure you want to delete "${_subject!.name}"? All associated notes and materials will be removed.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFFEF4444),
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    final confirmed = await AppDialogs.showDeleteConfirm(
+      context,
+      itemType: 'Subject',
+      itemName: _subject!.name,
     );
 
     if (confirmed == true && mounted) {
@@ -133,26 +118,26 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
     final themeColor = _parseColor(subject.color);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.scaffoldBg,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.chevronLeft, size: 20),
-          color: const Color(0xFF1F2937),
+          color: context.textPrimary,
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           subject.name,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
+            color: context.textPrimary,
           ),
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(LucideIcons.moreVertical, color: Color(0xFF1F2937)),
+            icon: Icon(LucideIcons.moreVertical, color: context.textPrimary),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -190,8 +175,9 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
+      body: AppBackground(
+        child: SafeArea(
+          child: LayoutBuilder(
           builder: (context, constraints) {
             return Center(
               child: ConstrainedBox(
@@ -234,10 +220,10 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                                 children: [
                                   Text(
                                     subject.name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFF1F2937),
+                                      color: context.textPrimary,
                                       letterSpacing: -0.3,
                                     ),
                                   ),
@@ -300,15 +286,15 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF9FAFB),
+                            color: context.cardBg,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                            border: Border.all(color: context.cardBorder),
                           ),
                           child: Text(
                             subject.description!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: Color(0xFF4B5563),
+                              color: context.textPrimary,
                               height: 1.5,
                             ),
                           ),
@@ -317,12 +303,12 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                       ],
 
                       // Modules Header
-                      const Text(
+                      Text(
                         'Subject Resources',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -407,8 +393,9 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
           },
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _ResourceTile extends StatelessWidget {
@@ -430,9 +417,9 @@ class _ResourceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.cardBorder),
       ),
       child: Material(
         color: Colors.transparent,
@@ -448,10 +435,10 @@ class _ResourceTile extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
+                    color: color.withValues(alpha: context.isDarkMode ? 0.22 : 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(icon, size: 20, color: color),
+                  child: Icon(icon, size: 20, color: context.isDarkMode ? context.primaryAccent : color),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -460,27 +447,27 @@ class _ResourceTile extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF6B7280),
+                          color: context.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   LucideIcons.chevronRight,
                   size: 16,
-                  color: Color(0xFF9CA3AF),
+                  color: context.textSecondary,
                 ),
               ],
             ),

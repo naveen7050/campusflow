@@ -1,5 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
 import 'package:campusflow/features/notes/presentation/views/create_note_view.dart';
 import 'package:campusflow/features/materials/presentation/widgets/add_material_dialog.dart';
 import 'package:campusflow/features/questions/presentation/views/create_question_view.dart';
@@ -13,26 +15,27 @@ class AddContentView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.scaffoldBg,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.chevronLeft, size: 20),
-          color: const Color(0xFF1F2937),
+          color: context.textPrimary,
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Add Content',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
+            color: context.textPrimary,
           ),
         ),
       ),
-      body: SafeArea(
-        child: Center(
+      body: AppBackground(
+        child: SafeArea(
+          child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
@@ -86,8 +89,9 @@ class AddContentView extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _AddContentCard extends StatelessWidget {
@@ -109,11 +113,18 @@ class _AddContentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveIconBg = context.isDarkMode
+        ? iconBg.withValues(alpha: 0.15)
+        : iconBg;
+    final effectiveIconColor = context.isDarkMode
+        ? context.primaryAccent
+        : iconColor;
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.cardBorder),
       ),
       child: Material(
         color: Colors.transparent,
@@ -129,10 +140,10 @@ class _AddContentCard extends StatelessWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: iconBg,
+                    color: effectiveIconBg,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, size: 26, color: iconColor),
+                  child: Icon(icon, size: 26, color: effectiveIconColor),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -141,27 +152,27 @@ class _AddContentCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF6B7280),
+                          color: context.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   LucideIcons.chevronRight,
                   size: 18,
-                  color: Color(0xFF9CA3AF),
+                  color: context.textSecondary,
                 ),
               ],
             ),

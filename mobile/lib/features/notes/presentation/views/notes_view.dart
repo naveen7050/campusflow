@@ -1,6 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:campusflow/core/widgets/app_search_bar.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
+import 'package:campusflow/core/widgets/app_dialogs.dart';
 import '../viewmodels/note_viewmodel.dart';
 import 'create_note_view.dart';
 
@@ -48,29 +52,34 @@ class _NotesViewState extends State<NotesView> {
     final vm = context.watch<NoteViewModel>();
     final notes = vm.filteredNotes;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final titleColor = isDark ? Colors.white : const Color(0xFF1F2937);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: bgColor,
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
                 icon: const Icon(LucideIcons.chevronLeft, size: 20),
-                color: const Color(0xFF1F2937),
+                color: titleColor,
                 onPressed: () => Navigator.pop(context),
               )
             : null,
         title: Text(
           widget.subjectName != null ? '${widget.subjectName} Notes' : 'Notes',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
+            color: titleColor,
           ),
         ),
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
+      body: AppBackground(
+        child: SafeArea(
+          child: LayoutBuilder(
           builder: (context, constraints) {
             final isDesktop = constraints.maxWidth >= 1024;
             final isTablet = constraints.maxWidth >= 600 && !isDesktop;
@@ -86,45 +95,14 @@ class _NotesViewState extends State<NotesView> {
                       child: Column(
                         children: [
                           // Search bar
-                          Container(
-                            height: 46,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: (q) => vm.setSearchQuery(q),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF1F2937),
-                              ),
-                              decoration: InputDecoration(
-                                hintText: 'Search notes, topics, or subjects...',
-                                hintStyle: const TextStyle(
-                                  color: Color(0xFF9CA3AF),
-                                  fontSize: 13,
-                                ),
-                                prefixIcon: const Icon(
-                                  LucideIcons.search,
-                                  color: Color(0xFF9CA3AF),
-                                  size: 18,
-                                ),
-                                suffixIcon: _searchController.text.isNotEmpty
-                                    ? IconButton(
-                                        icon: const Icon(LucideIcons.x, size: 16),
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          vm.setSearchQuery('');
-                                        },
-                                      )
-                                    : null,
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                              ),
-                            ),
+                          AppSearchBar(
+                            controller: _searchController,
+                            hintText: 'Search notes, topics, or subjects...',
+                            onChanged: (q) => vm.setSearchQuery(q),
+                            onClear: () {
+                              _searchController.clear();
+                              vm.setSearchQuery('');
+                            },
                           ),
                           const SizedBox(height: 12),
 
@@ -170,7 +148,8 @@ class _NotesViewState extends State<NotesView> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+    ),
+    floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, CreateNoteView.routeName);
         },
@@ -352,9 +331,9 @@ class _NoteCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.cardBorder),
       ),
       child: Material(
         color: Colors.transparent,
@@ -372,13 +351,13 @@ class _NoteCard extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEBF5E9),
+                    color: context.iconContainerBg,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     LucideIcons.fileText,
                     size: 22,
-                    color: Color(0xFF0F5132),
+                    color: context.primaryAccent,
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -388,10 +367,10 @@ class _NoteCard extends StatelessWidget {
                     children: [
                       Text(
                         note.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -402,25 +381,25 @@ class _NoteCard extends StatelessWidget {
                           if (note.subjectName != null) ...[
                             Text(
                               note.subjectName!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF0F5132),
+                                color: context.primaryAccent,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const Text(
+                            Text(
                               ' • ',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF9CA3AF),
+                                color: context.textSecondary,
                               ),
                             ),
                           ],
                           Text(
                             dateStr,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF6B7280),
+                              color: context.textSecondary,
                             ),
                           ),
                         ],
@@ -475,7 +454,7 @@ class _NoteCard extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: context.cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -532,38 +511,22 @@ class _NoteCard extends StatelessWidget {
                         icon: const Icon(LucideIcons.trash2, size: 20),
                         color: const Color(0xFFEF4444),
                         tooltip: 'Delete Note',
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (dialogCtx) => AlertDialog(
-                              title: const Text('Delete Note'),
-                              content: Text('Are you sure you want to delete "${note.title}"?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(dialogCtx),
-                                  child: const Text('Cancel'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    Navigator.pop(dialogCtx);
-                                    Navigator.pop(context);
-                                    final vm = context.read<NoteViewModel>();
-                                    await vm.deleteNote(note.id);
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Note deleted successfully.')),
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFEF4444),
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  child: const Text('Delete'),
-                                ),
-                              ],
-                            ),
+                        onPressed: () async {
+                          final confirm = await AppDialogs.showDeleteConfirm(
+                            context,
+                            itemType: 'Note',
+                            itemName: note.title,
                           );
+                          if (confirm == true && context.mounted) {
+                            Navigator.pop(context);
+                            final vm = context.read<NoteViewModel>();
+                            await vm.deleteNote(note.id);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Note deleted successfully.')),
+                              );
+                            }
+                          }
                         },
                       ),
                     ],
@@ -644,15 +607,18 @@ class _PillTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F5132) : const Color(0xFFF3F4F6),
+          color: isSelected ? context.primaryAccent : context.cardBg,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? context.primaryAccent : context.cardBorder,
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF4B5563),
+            color: isSelected ? Colors.white : context.textPrimary,
           ),
         ),
       ),

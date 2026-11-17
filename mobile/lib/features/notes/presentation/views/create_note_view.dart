@@ -1,9 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
 import 'package:campusflow/features/notes/presentation/viewmodels/note_viewmodel.dart';
 import 'package:campusflow/features/notes/domain/models/note_model.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
 
 class CreateNoteView extends StatefulWidget {
   static const String routeName = '/create-note';
@@ -121,21 +122,21 @@ class _CreateNoteViewState extends State<CreateNoteView> {
     final isSaving = context.watch<NoteViewModel>().isSaving;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.scaffoldBg,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.chevronLeft, size: 20),
-          color: const Color(0xFF1F2937),
+          color: context.textPrimary,
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           widget.initialNote != null ? 'Edit Note' : 'Create Note',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
+            color: context.textPrimary,
           ),
         ),
         actions: [

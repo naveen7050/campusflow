@@ -1,6 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:campusflow/core/widgets/app_search_bar.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
+import 'package:campusflow/core/widgets/app_dialogs.dart';
 import 'package:campusflow/features/assignments/domain/models/assignment_model.dart';
 import 'package:campusflow/features/assignments/presentation/viewmodels/assignment_viewmodel.dart';
 import 'package:campusflow/features/assignments/presentation/widgets/add_assignment_dialog.dart';
@@ -48,15 +52,19 @@ class _AssignmentsViewState extends State<AssignmentsView> {
     final vm = context.watch<AssignmentViewModel>();
     final assignments = vm.filteredAssignments;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final titleColor = isDark ? Colors.white : const Color(0xFF1F2937);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: bgColor,
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
                 icon: const Icon(LucideIcons.chevronLeft, size: 20),
-                color: const Color(0xFF1F2937),
+                color: titleColor,
                 onPressed: () => Navigator.pop(context),
               )
             : null,
@@ -64,15 +72,16 @@ class _AssignmentsViewState extends State<AssignmentsView> {
           widget.subjectName != null
               ? '${widget.subjectName} Assignments'
               : 'Assignments',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1F2937),
+            color: titleColor,
           ),
         ),
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
+      body: AppBackground(
+        child: SafeArea(
+          child: LayoutBuilder(
           builder: (context, constraints) {
             final isDesktop = constraints.maxWidth >= 1024;
             final isTablet = constraints.maxWidth >= 600 && !isDesktop;
@@ -88,37 +97,14 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                       child: Column(
                         children: [
                           // Search bar
-                          Container(
-                            height: 46,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: TextField(
-                              controller: _searchController,
-                              onChanged: vm.setSearchQuery,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF1F2937),
-                              ),
-                              decoration: const InputDecoration(
-                                hintText: 'Search assignments...',
-                                hintStyle: TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF9CA3AF),
-                                ),
-                                prefixIcon: const Icon(
-                                  LucideIcons.search,
-                                  color: Color(0xFF9CA3AF),
-                                  size: 18,
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                              ),
-                            ),
+                          AppSearchBar(
+                            controller: _searchController,
+                            hintText: 'Search assignments...',
+                            onChanged: vm.setSearchQuery,
+                            onClear: () {
+                              _searchController.clear();
+                              vm.setSearchQuery('');
+                            },
                           ),
                           const SizedBox(height: 12),
 
@@ -222,7 +208,7 @@ class _AssignmentsViewState extends State<AssignmentsView> {
                                                 80,
                                               ),
                                               itemCount: assignments.length,
-                                              separatorBuilder: (_, __) =>
+                                              separatorBuilder: (context, index) =>
                                                   const SizedBox(height: 12),
                                               itemBuilder: (context, index) {
                                                 return _AssignmentCard(
@@ -244,7 +230,8 @@ class _AssignmentsViewState extends State<AssignmentsView> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+    ),
+    floatingActionButton: FloatingActionButton(
         onPressed: () {
           AddAssignmentDialog.show(
             context,
@@ -347,15 +334,18 @@ class _FilterTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F5132) : const Color(0xFFF3F4F6),
+          color: isSelected ? context.primaryAccent : context.cardBg,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? context.primaryAccent : context.cardBorder,
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 13,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : const Color(0xFF4B5563),
+            color: isSelected ? Colors.white : context.textPrimary,
           ),
         ),
       ),
@@ -379,9 +369,9 @@ class _AssignmentCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.cardBorder),
         boxShadow: const [
           BoxShadow(
             color: Color(0x05000000),
@@ -398,7 +388,9 @@ class _AssignmentCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFFFFFBEB),
+              color: context.isDarkMode
+                  ? const Color(0xFF332615)
+                  : const Color(0xFFFFFBEB),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -418,18 +410,18 @@ class _AssignmentCard extends StatelessWidget {
                   assignment.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1F2937),
+                    color: context.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   formattedDueDate,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF6B7280),
+                    color: context.textSecondary,
                   ),
                 ),
                 if (assignment.description != null &&
@@ -501,7 +493,7 @@ class _AssignmentCard extends StatelessWidget {
               color: Color(0xFF9CA3AF),
             ),
             padding: EdgeInsets.zero,
-            onSelected: (val) {
+            onSelected: (val) async {
               if (val == 'toggle') {
                 vm.toggleAssignment(assignment.id);
               } else if (val == 'edit') {
@@ -510,37 +502,19 @@ class _AssignmentCard extends StatelessWidget {
                   initialAssignment: assignment,
                 );
               } else if (val == 'delete') {
-                showDialog(
-                  context: context,
-                  builder: (dialogCtx) => AlertDialog(
-                    title: const Text('Delete Assignment'),
-                    content: Text(
-                      'Are you sure you want to delete "${assignment.title}"?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogCtx),
-                        child: const Text('Cancel'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(dialogCtx);
-                          vm.deleteAssignment(assignment.id);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Assignment deleted successfully.'),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFEF4444),
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text('Delete'),
-                      ),
-                    ],
-                  ),
+                final confirm = await AppDialogs.showDeleteConfirm(
+                  context,
+                  itemType: 'Assignment',
+                  itemName: assignment.title,
                 );
+                if (confirm == true && context.mounted) {
+                  vm.deleteAssignment(assignment.id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Assignment deleted successfully.'),
+                    ),
+                  );
+                }
               }
             },
             itemBuilder: (ctx) => [

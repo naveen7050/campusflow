@@ -8,7 +8,11 @@ import 'add_content_view.dart';
 import 'package:campusflow/features/notes/presentation/views/notes_view.dart';
 import 'package:campusflow/features/materials/presentation/views/materials_view.dart';
 import 'package:campusflow/features/questions/presentation/views/questions_view.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
 import 'package:campusflow/features/assignments/presentation/views/assignments_view.dart';
+import 'package:campusflow/core/widgets/app_search_bar.dart';
+import 'package:campusflow/core/widgets/app_dialogs.dart';
+import 'package:campusflow/core/widgets/app_background.dart';
 import 'package:campusflow/features/shared/presentation/views/shared_with_me_view.dart';
 import 'package:campusflow/features/profile/presentation/views/profile_view.dart';
 import 'package:campusflow/features/search/presentation/views/search_view.dart';
@@ -57,26 +61,14 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _handleLogout(AuthViewModel authViewModel) async {
-    final shouldLogout = await showDialog<bool>(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        title: const Text('Log Out'),
-        content: const Text('Are you sure you want to log out of CampusFlow?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogCtx, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Log Out'),
-          ),
-        ],
-      ),
+    final shouldLogout = await AppDialogs.showConfirm(
+      context,
+      title: 'Sign Out',
+      message: 'Are you sure you want\nto sign out?',
+      icon: LucideIcons.logOut,
+      confirmText: 'Sign Out',
+      cancelText: 'Cancel',
+      buttonLayout: DialogButtonLayout.cancelTopConfirmBottom,
     );
 
     if (shouldLogout == true) {
@@ -94,9 +86,11 @@ class _HomeViewState extends State<HomeView> {
     final firstName = user?.fullName.split(' ').first ?? 'Student';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: _selectedIndex == 0
-          ? SafeArea(child: _buildHomeBody(authViewModel, user, firstName))
+          ? AppBackground(
+              child: SafeArea(child: _buildHomeBody(authViewModel, user, firstName)),
+            )
           : _buildPlaceholder(_selectedIndex),
       bottomNavigationBar: _buildBottomNav(),
       floatingActionButton: _buildFab(authViewModel),
@@ -196,20 +190,20 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         'CampusFlow',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F5132),
+                          color: context.primaryAccent,
                         ),
                       ),
                       const Spacer(),
                       // Notification
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           LucideIcons.bell,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                           size: 22,
                         ),
                         onPressed: () {},
@@ -222,7 +216,7 @@ class _HomeViewState extends State<HomeView> {
                         onTap: () => _handleLogout(authViewModel),
                         child: CircleAvatar(
                           radius: 18,
-                          backgroundColor: const Color(0xFF0F5132),
+                          backgroundColor: context.primaryAccent,
                           child: Text(
                             user != null && user.fullName.isNotEmpty
                                 ? user.fullName[0].toUpperCase()
@@ -242,46 +236,20 @@ class _HomeViewState extends State<HomeView> {
                   // Greeting
                   Text(
                     '${_getGreeting()}, $firstName 👋',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF1F2937),
+                      color: context.textPrimary,
                       letterSpacing: -0.3,
                     ),
                   ),
                   const SizedBox(height: 14),
 
                   // Search bar
-                  InkWell(
+                  AppSearchBar(
+                    readOnly: true,
+                    hintText: 'Search notes, questions, or files...',
                     onTap: () => Navigator.pushNamed(context, SearchView.routeName),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Row(
-                        children: [
-                          SizedBox(width: 14),
-                          Icon(
-                            LucideIcons.search,
-                            color: Color(0xFF9CA3AF),
-                            size: 18,
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              'Search notes, questions, or files...',
-                              style: TextStyle(
-                                color: Color(0xFF9CA3AF),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 20),
 
@@ -335,12 +303,12 @@ class _HomeViewState extends State<HomeView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Recent',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                         ),
                       ),
                       TextButton(
@@ -350,11 +318,11 @@ class _HomeViewState extends State<HomeView> {
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text(
+                        child: Text(
                           'View all >',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF0F5132),
+                            color: context.primaryAccent,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -369,9 +337,9 @@ class _HomeViewState extends State<HomeView> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
+                        color: context.cardBg,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                        border: Border.all(color: context.cardBorder),
                       ),
                       child: Center(
                         child: Column(
@@ -380,24 +348,24 @@ class _HomeViewState extends State<HomeView> {
                             Icon(
                               LucideIcons.history,
                               size: 36,
-                              color: Colors.grey.shade400,
+                              color: context.textSecondary,
                             ),
                             const SizedBox(height: 8),
-                            const Text(
+                            Text(
                               'No recent activity yet',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
-                                color: Color(0xFF4B5563),
+                                color: context.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
+                            Text(
                               'Add notes, questions, or assignments to track them here.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF9CA3AF),
+                                color: context.textSecondary,
                               ),
                             ),
                           ],
@@ -441,7 +409,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildBottomNav() {
     return BottomAppBar(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       elevation: 8,
       shadowColor: Colors.black12,
       shape: const CircularNotchedRectangle(),
@@ -493,7 +461,7 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildFab(dynamic authViewModel) {
     return FloatingActionButton(
       onPressed: () => Navigator.pushNamed(context, AddContentView.routeName),
-      backgroundColor: const Color(0xFF0F5132),
+      backgroundColor: context.primaryAccent,
       foregroundColor: Colors.white,
       elevation: 4,
       shape: const CircleBorder(),
@@ -520,9 +488,9 @@ class _StatChip extends StatelessWidget {
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFB),
+          color: context.cardBg,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: context.cardBorder),
         ),
         child: Material(
           color: Colors.transparent,
@@ -539,25 +507,25 @@ class _StatChip extends StatelessWidget {
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEBF5E9),
+                      color: context.iconContainerBg,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(icon, size: 16, color: const Color(0xFF0F5132)),
+                    child: Icon(icon, size: 16, color: context.primaryAccent),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1F2937),
+                      color: context.textPrimary,
                     ),
                   ),
                   Text(
                     count,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
-                      color: Color(0xFF6B7280),
+                      color: context.textSecondary,
                     ),
                   ),
                 ],
@@ -589,11 +557,18 @@ class _RecentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveIconBg = context.isDarkMode
+        ? iconBg.withValues(alpha: 0.15)
+        : iconBg;
+    final effectiveIconColor = context.isDarkMode
+        ? context.primaryAccent
+        : iconColor;
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: context.cardBg,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.cardBorder),
       ),
       child: Material(
         color: Colors.transparent,
@@ -609,10 +584,10 @@ class _RecentItem extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: iconBg,
+                    color: effectiveIconBg,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(icon, size: 20, color: iconColor),
+                  child: Icon(icon, size: 20, color: effectiveIconColor),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -621,26 +596,26 @@ class _RecentItem extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1F2937),
+                          color: context.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF6B7280),
+                          color: context.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   LucideIcons.chevronRight,
-                  color: Color(0xFF9CA3AF),
+                  color: context.textSecondary,
                   size: 18,
                 ),
               ],
@@ -672,6 +647,9 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isActive = selectedIndex == index;
+    final activeColor = context.primaryAccent;
+    const inactiveColor = Color(0xFF9CA3AF);
+
     return GestureDetector(
       onTap: () => onTap(index),
       behavior: HitTestBehavior.opaque,
@@ -683,9 +661,7 @@ class _NavItem extends StatelessWidget {
             Icon(
               isActive ? activeIcon : icon,
               size: 24,
-              color: isActive
-                  ? const Color(0xFF0F5132)
-                  : const Color(0xFF9CA3AF),
+              color: isActive ? activeColor : inactiveColor,
             ),
             const SizedBox(height: 2),
             Text(
@@ -693,9 +669,7 @@ class _NavItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                color: isActive
-                    ? const Color(0xFF0F5132)
-                    : const Color(0xFF9CA3AF),
+                color: isActive ? activeColor : inactiveColor,
               ),
             ),
           ],

@@ -1,9 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
 import 'package:campusflow/features/assignments/domain/models/assignment_model.dart';
 import 'package:campusflow/features/assignments/presentation/viewmodels/assignment_viewmodel.dart';
+import 'package:campusflow/app/theme/app_colors.dart';
 
 class AddAssignmentDialog extends StatefulWidget {
   final AssignmentModel? initialAssignment;
@@ -159,9 +160,9 @@ class _AddAssignmentDialogState extends State<AddAssignmentDialog> {
         top: 20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: context.cardBg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
         top: false,
@@ -190,10 +191,10 @@ class _AddAssignmentDialogState extends State<AddAssignmentDialog> {
                   widget.initialAssignment != null
                       ? 'Edit Assignment'
                       : 'Add Assignment',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2937),
+                    color: context.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 16),
