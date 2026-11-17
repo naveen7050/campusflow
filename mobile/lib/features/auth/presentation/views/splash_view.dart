@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import 'onboarding_view.dart';
 import '../../../home/presentation/views/home_view.dart';
@@ -103,7 +104,7 @@ class _SplashViewState extends State<SplashView> with SingleTickerProviderStateM
                         borderRadius: BorderRadius.circular(22),
                       ),
                       child: const Icon(
-                        Icons.menu_book_rounded,
+                        LucideIcons.bookOpen,
                         size: 44,
                         color: Color(0xFF0F5132),
                       ),

@@ -69,15 +69,15 @@ class QuestionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchQuestions() async {
+  Future<void> fetchQuestions({String? subjectId, String? filter}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
       _questions = await _repository.getQuestions(
-        subjectId: _selectedSubjectId,
-        filter: _selectedFilter,
+        subjectId: subjectId ?? _selectedSubjectId,
+        filter: filter ?? _selectedFilter,
       );
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -109,6 +109,43 @@ class QuestionViewModel extends ChangeNotifier {
         isShared: isShared,
       );
       _questions.insert(0, created);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      return false;
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateQuestion({
+    required String id,
+    String? subjectId,
+    String? question,
+    String? answer,
+    String? imageUrl,
+    bool? isStarred,
+    bool? isShared,
+  }) async {
+    _isSaving = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updated = await _repository.updateQuestion(
+        id: id,
+        subjectId: subjectId,
+        question: question,
+        answer: answer,
+        imageUrl: imageUrl,
+        isStarred: isStarred,
+        isShared: isShared,
+      );
+      final index = _questions.indexWhere((q) => q.id == id);
+      if (index != -1) {
+        _questions[index] = updated;
+      }
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');

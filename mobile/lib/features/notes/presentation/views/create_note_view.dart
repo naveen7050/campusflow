@@ -1,12 +1,16 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
 import 'package:campusflow/features/notes/presentation/viewmodels/note_viewmodel.dart';
+import 'package:campusflow/features/notes/domain/models/note_model.dart';
 
 class CreateNoteView extends StatefulWidget {
   static const String routeName = '/create-note';
 
-  const CreateNoteView({super.key});
+  final NoteModel? initialNote;
+
+  const CreateNoteView({super.key, this.initialNote});
 
   @override
   State<CreateNoteView> createState() => _CreateNoteViewState();
@@ -25,6 +29,13 @@ class _CreateNoteViewState extends State<CreateNoteView> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialNote != null) {
+      _titleController.text = widget.initialNote!.title;
+      _contentController.text = widget.initialNote!.content;
+      _selectedSubjectId = widget.initialNote!.subjectId;
+      _isShared = widget.initialNote!.isShared;
+      _tags.addAll(widget.initialNote!.tags);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SubjectViewModel>().fetchSubjects();
     });
@@ -52,17 +63,35 @@ class _CreateNoteViewState extends State<CreateNoteView> {
     if (!_formKey.currentState!.validate()) return;
 
     final vm = context.read<NoteViewModel>();
-    final success = await vm.createNote(
-      subjectId: _selectedSubjectId,
-      title: _titleController.text,
-      content: _contentController.text,
-      tags: _tags,
-      isShared: _isShared,
-    );
+    bool success;
+    if (widget.initialNote != null) {
+      success = await vm.updateNote(
+        id: widget.initialNote!.id,
+        subjectId: _selectedSubjectId,
+        title: _titleController.text,
+        content: _contentController.text,
+        tags: _tags,
+        isShared: _isShared,
+      );
+    } else {
+      success = await vm.createNote(
+        subjectId: _selectedSubjectId,
+        title: _titleController.text,
+        content: _contentController.text,
+        tags: _tags,
+        isShared: _isShared,
+      );
+    }
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Note created successfully!')),
+        SnackBar(
+          content: Text(
+            widget.initialNote != null
+                ? 'Note updated successfully!'
+                : 'Note created successfully!',
+          ),
+        ),
       );
       Navigator.pop(context);
     }
@@ -97,13 +126,13 @@ class _CreateNoteViewState extends State<CreateNoteView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(LucideIcons.chevronLeft, size: 20),
           color: const Color(0xFF1F2937),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Create Note',
-          style: TextStyle(
+        title: Text(
+          widget.initialNote != null ? 'Edit Note' : 'Create Note',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Color(0xFF1F2937),
@@ -252,9 +281,9 @@ class _CreateNoteViewState extends State<CreateNoteView> {
                       const SizedBox(width: 8),
                       IconButton(
                         icon: const Icon(
-                          Icons.add_circle,
+                          LucideIcons.plusCircle,
                           color: Color(0xFF0F5132),
-                          size: 32,
+                          size: 30,
                         ),
                         onPressed: _addTag,
                       ),

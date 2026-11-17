@@ -159,6 +159,81 @@ const AuthController = {
       });
     }
   },
+
+  async updateProfile(req, res) {
+    try {
+      const { fullName, department, semester } = req.body;
+      const updatedUser = await UserModel.updateProfile(req.user.id, {
+        fullName: fullName ? fullName.trim() : null,
+        department: department ? department.trim() : null,
+        semester: semester ? parseInt(semester, 10) : null,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Profile updated successfully.',
+        data: { user: updatedUser },
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to update profile.',
+        error: error.message,
+      });
+    }
+  },
+
+  async changePassword(req, res) {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Both current password and new password are required.',
+        });
+      }
+
+      const user = await UserModel.findByEmail(req.user.email);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found.',
+        });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Current password is incorrect.',
+        });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({
+          success: false,
+          message: 'New password must be at least 6 characters.',
+        });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const newHash = await bcrypt.hash(newPassword, salt);
+      await UserModel.updatePassword(req.user.id, newHash);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Password updated successfully.',
+      });
+    } catch (error) {
+      console.error('Change password error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to update password.',
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = AuthController;

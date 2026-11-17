@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/notes/presentation/views/create_note_view.dart';
 import 'package:campusflow/features/materials/presentation/widgets/add_material_dialog.dart';
 import 'package:campusflow/features/questions/presentation/views/create_question_view.dart';
@@ -17,7 +18,7 @@ class AddContentView extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(LucideIcons.chevronLeft, size: 20),
           color: const Color(0xFF1F2937),
           onPressed: () => Navigator.pop(context),
         ),
@@ -38,7 +39,7 @@ class AddContentView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               children: [
                 _AddContentCard(
-                  icon: Icons.quiz_outlined,
+                  icon: LucideIcons.helpCircle,
                   iconColor: const Color(0xFF0F5132),
                   iconBg: const Color(0xFFEBF5E9),
                   title: 'Add Question',
@@ -49,7 +50,7 @@ class AddContentView extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 _AddContentCard(
-                  icon: Icons.edit_note_rounded,
+                  icon: LucideIcons.fileText,
                   iconColor: const Color(0xFF2E7D32),
                   iconBg: const Color(0xFFE8F5E9),
                   title: 'Add Note',
@@ -60,7 +61,7 @@ class AddContentView extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 _AddContentCard(
-                  icon: Icons.folder_outlined,
+                  icon: LucideIcons.folder,
                   iconColor: const Color(0xFF1E3A8A),
                   iconBg: const Color(0xFFEFF6FF),
                   title: 'Add Study Material',
@@ -71,7 +72,7 @@ class AddContentView extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 _AddContentCard(
-                  icon: Icons.assignment_outlined,
+                  icon: LucideIcons.clipboardList,
                   iconColor: const Color(0xFFD97706),
                   iconBg: const Color(0xFFFFFBEB),
                   title: 'Add Assignment',
@@ -158,8 +159,8 @@ class _AddContentCard extends StatelessWidget {
                   ),
                 ),
                 const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 16,
+                  LucideIcons.chevronRight,
+                  size: 18,
                   color: Color(0xFF9CA3AF),
                 ),
               ],

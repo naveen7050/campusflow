@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
 import 'package:campusflow/features/assignments/domain/models/assignment_model.dart';
 import 'package:campusflow/features/assignments/presentation/viewmodels/assignment_viewmodel.dart';
@@ -291,7 +292,7 @@ class _AddAssignmentDialogState extends State<AddAssignmentDialog> {
                           ),
                         ),
                         const Icon(
-                          Icons.calendar_today_outlined,
+                          LucideIcons.calendar,
                           size: 18,
                           color: Color(0xFF0F5132),
                         ),

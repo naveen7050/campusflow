@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../viewmodels/subject_viewmodel.dart';
 import '../widgets/add_edit_subject_dialog.dart';
 import '../widgets/subject_card.dart';
@@ -51,7 +52,7 @@ class _SubjectsViewState extends State<SubjectsView> {
               elevation: 0,
               leading: Navigator.canPop(context)
                   ? IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                      icon: const Icon(LucideIcons.chevronLeft, size: 20),
                       color: const Color(0xFF1F2937),
                       onPressed: () => Navigator.pop(context),
                     )
@@ -66,7 +67,7 @@ class _SubjectsViewState extends State<SubjectsView> {
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.add_circle_outline_rounded),
+                  icon: const Icon(LucideIcons.plusCircle, size: 22),
                   color: const Color(0xFF0F5132),
                   tooltip: 'Add Subject',
                   onPressed: _openAddSubject,
@@ -104,7 +105,7 @@ class _SubjectsViewState extends State<SubjectsView> {
                               ),
                               IconButton(
                                 icon: const Icon(
-                                  Icons.add_circle_outline_rounded,
+                                  LucideIcons.plusCircle,
                                   color: Color(0xFF0F5132),
                                 ),
                                 tooltip: 'Add Subject',
@@ -139,13 +140,13 @@ class _SubjectsViewState extends State<SubjectsView> {
                                     fontSize: 13,
                                   ),
                                   prefixIcon: const Icon(
-                                    Icons.search,
+                                    LucideIcons.search,
                                     color: Color(0xFF9CA3AF),
                                     size: 20,
                                   ),
                                   suffixIcon: _searchController.text.isNotEmpty
                                       ? IconButton(
-                                          icon: const Icon(Icons.clear, size: 18),
+                                          icon: const Icon(LucideIcons.x, size: 18),
                                           onPressed: () {
                                             _searchController.clear();
                                             viewModel.setSearchQuery('');
@@ -214,7 +215,7 @@ class _SubjectsViewState extends State<SubjectsView> {
               foregroundColor: Colors.white,
               elevation: 3,
               tooltip: 'Add Subject',
-              child: const Icon(Icons.add, size: 28),
+              child: const Icon(LucideIcons.plus, size: 24),
             ),
     );
   }
@@ -239,7 +240,7 @@ class _SubjectsViewState extends State<SubjectsView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(
-                Icons.error_outline_rounded,
+                LucideIcons.alertCircle,
                 size: 48,
                 color: Color(0xFFEF4444),
               ),
@@ -294,7 +295,7 @@ class _SubjectsViewState extends State<SubjectsView> {
                   borderRadius: BorderRadius.circular(28),
                 ),
                 child: const Icon(
-                  Icons.menu_book_rounded,
+                  LucideIcons.bookOpen,
                   size: 56,
                   color: Color(0xFF0F5132),
                 ),
@@ -322,7 +323,7 @@ class _SubjectsViewState extends State<SubjectsView> {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: _openAddSubject,
-                icon: const Icon(Icons.add, size: 20),
+                icon: const Icon(LucideIcons.plus, size: 20),
                 label: const Text('Add Subject'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0F5132),

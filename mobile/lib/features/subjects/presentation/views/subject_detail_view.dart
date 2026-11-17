@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/domain/models/subject_model.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
 import 'package:campusflow/features/subjects/presentation/widgets/add_edit_subject_dialog.dart';
@@ -47,21 +48,21 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
   IconData _getIcon(String iconName) {
     switch (iconName.toLowerCase()) {
       case 'code':
-        return Icons.code_rounded;
+        return LucideIcons.code;
       case 'storage':
       case 'database':
-        return Icons.storage_rounded;
+        return LucideIcons.database;
       case 'web':
-        return Icons.language_rounded;
+        return LucideIcons.globe;
       case 'phone':
       case 'android':
-        return Icons.android_rounded;
+        return LucideIcons.smartphone;
       case 'calculate':
-        return Icons.calculate_rounded;
+        return LucideIcons.calculator;
       case 'science':
-        return Icons.science_rounded;
+        return LucideIcons.flaskConical;
       default:
-        return Icons.menu_book_rounded;
+        return LucideIcons.bookOpen;
     }
   }
 
@@ -137,7 +138,7 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(LucideIcons.chevronLeft, size: 20),
           color: const Color(0xFF1F2937),
           onPressed: () => Navigator.pop(context),
         ),
@@ -151,7 +152,7 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF1F2937)),
+            icon: const Icon(LucideIcons.moreVertical, color: Color(0xFF1F2937)),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -167,7 +168,7 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                 value: 'edit',
                 child: Row(
                   children: [
-                    Icon(Icons.edit_outlined, size: 18),
+                    Icon(LucideIcons.edit2, size: 18),
                     SizedBox(width: 8),
                     Text('Edit Subject'),
                   ],
@@ -177,7 +178,7 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline,
+                    Icon(LucideIcons.trash2,
                         size: 18, color: Color(0xFFEF4444)),
                     SizedBox(width: 8),
                     Text('Delete',
@@ -328,7 +329,7 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
 
                       // 4 Resource Tiles (Matches screens 8, 9, 10, 11, 12)
                       _ResourceTile(
-                        icon: Icons.quiz_outlined,
+                        icon: LucideIcons.helpCircle,
                         title: 'Question Bank',
                         subtitle: 'Review & practice past questions',
                         color: const Color(0xFF0F5132),
@@ -346,7 +347,7 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                       ),
                       const SizedBox(height: 10),
                       _ResourceTile(
-                        icon: Icons.notes_outlined,
+                        icon: LucideIcons.fileText,
                         title: 'Subject Notes',
                         subtitle: 'Read and create study notes',
                         color: const Color(0xFF2E7D32),
@@ -364,7 +365,7 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                       ),
                       const SizedBox(height: 10),
                       _ResourceTile(
-                        icon: Icons.folder_outlined,
+                        icon: LucideIcons.folder,
                         title: 'Study Materials',
                         subtitle: 'PDFs, slides, and syllabus documents',
                         color: const Color(0xFF1E3A8A),
@@ -382,7 +383,7 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
                       ),
                       const SizedBox(height: 10),
                       _ResourceTile(
-                        icon: Icons.assignment_outlined,
+                        icon: LucideIcons.clipboardList,
                         title: 'Assignments',
                         subtitle: 'Track assignments & submission deadlines',
                         color: const Color(0xFFD97706),
@@ -477,8 +478,8 @@ class _ResourceTile extends StatelessWidget {
                   ),
                 ),
                 const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
+                  LucideIcons.chevronRight,
+                  size: 16,
                   color: Color(0xFF9CA3AF),
                 ),
               ],

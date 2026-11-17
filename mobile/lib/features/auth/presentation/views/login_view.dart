@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../viewmodels/auth_viewmodel.dart';
@@ -72,7 +73,7 @@ class _LoginViewState extends State<LoginView> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
-                              Icons.menu_book_rounded,
+                              LucideIcons.bookOpen,
                               size: 22,
                               color: Color(0xFF0F5132),
                             ),
@@ -229,8 +230,8 @@ class _LoginViewState extends State<LoginView> {
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
+                                ? LucideIcons.eye
+                                : LucideIcons.eyeOff,
                             color: const Color(0xFF9CA3AF),
                             size: 20,
                           ),
@@ -260,7 +261,9 @@ class _LoginViewState extends State<LoginView> {
                         onPressed: isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0F5132),
+                          disabledBackgroundColor: const Color(0xFF0F5132),
                           foregroundColor: Colors.white,
+                          disabledForegroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

@@ -1,14 +1,25 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
 import 'package:campusflow/features/materials/presentation/viewmodels/material_viewmodel.dart';
+import 'package:campusflow/features/materials/domain/models/material_model.dart';
 
 class AddMaterialDialog extends StatefulWidget {
   final String? initialSubjectId;
+  final MaterialModel? initialMaterial;
 
-  const AddMaterialDialog({super.key, this.initialSubjectId});
+  const AddMaterialDialog({
+    super.key,
+    this.initialSubjectId,
+    this.initialMaterial,
+  });
 
-  static Future<bool?> show(BuildContext context, {String? initialSubjectId}) {
+  static Future<bool?> show(
+    BuildContext context, {
+    String? initialSubjectId,
+    MaterialModel? initialMaterial,
+  }) {
     final isTablet = MediaQuery.of(context).size.width >= 600;
 
     if (isTablet) {
@@ -20,7 +31,10 @@ class AddMaterialDialog extends StatefulWidget {
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
-            child: AddMaterialDialog(initialSubjectId: initialSubjectId),
+            child: AddMaterialDialog(
+              initialSubjectId: initialSubjectId,
+              initialMaterial: initialMaterial,
+            ),
           ),
         ),
       );
@@ -36,7 +50,10 @@ class AddMaterialDialog extends StatefulWidget {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: AddMaterialDialog(initialSubjectId: initialSubjectId),
+          child: AddMaterialDialog(
+            initialSubjectId: initialSubjectId,
+            initialMaterial: initialMaterial,
+          ),
         ),
       );
     }
@@ -61,7 +78,16 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedSubjectId = widget.initialSubjectId;
+    if (widget.initialMaterial != null) {
+      _titleController.text = widget.initialMaterial!.title;
+      _urlController.text = widget.initialMaterial!.fileUrl ?? '';
+      _selectedSubjectId = widget.initialMaterial!.subjectId;
+      _selectedFileType = widget.initialMaterial!.fileType;
+      _selectedFileSize = widget.initialMaterial!.fileSize;
+      _isShared = widget.initialMaterial!.isShared;
+    } else {
+      _selectedSubjectId = widget.initialSubjectId;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SubjectViewModel>().fetchSubjects();
     });
@@ -78,16 +104,39 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     final vm = context.read<MaterialViewModel>();
-    final success = await vm.createMaterial(
-      subjectId: _selectedSubjectId,
-      title: _titleController.text,
-      fileUrl: _urlController.text.isEmpty ? null : _urlController.text,
-      fileType: _selectedFileType,
-      fileSize: _selectedFileSize,
-      isShared: _isShared,
-    );
+    bool success;
+
+    if (widget.initialMaterial != null) {
+      success = await vm.updateMaterial(
+        id: widget.initialMaterial!.id,
+        subjectId: _selectedSubjectId,
+        title: _titleController.text,
+        fileUrl: _urlController.text.trim().isEmpty ? null : _urlController.text.trim(),
+        fileType: _selectedFileType,
+        fileSize: _selectedFileSize,
+        isShared: _isShared,
+      );
+    } else {
+      success = await vm.createMaterial(
+        subjectId: _selectedSubjectId,
+        title: _titleController.text,
+        fileUrl: _urlController.text.trim().isEmpty ? null : _urlController.text.trim(),
+        fileType: _selectedFileType,
+        fileSize: _selectedFileSize,
+        isShared: _isShared,
+      );
+    }
 
     if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.initialMaterial != null
+                ? 'Material updated successfully!'
+                : 'Material added successfully!',
+          ),
+        ),
+      );
       Navigator.pop(context, true);
     }
   }
@@ -137,9 +186,11 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Upload Study Material',
-                  style: TextStyle(
+                Text(
+                  widget.initialMaterial != null
+                      ? 'Edit Study Material'
+                      : 'Upload Study Material',
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1F2937),
@@ -147,7 +198,7 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: Color(0xFF6B7280)),
+                  icon: const Icon(LucideIcons.x, color: Color(0xFF6B7280)),
                   onPressed: () => Navigator.pop(context),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),

@@ -27,7 +27,10 @@ class MaterialModel {
     this.subjectName,
     this.subjectCode,
     this.subjectColor,
+    this.authorName,
   });
+
+  final String? authorName;
 
   factory MaterialModel.fromJson(Map<String, dynamic> json) {
     return MaterialModel(
@@ -48,6 +51,7 @@ class MaterialModel {
       subjectName: json['subject_name'] as String?,
       subjectCode: json['subject_code'] as String?,
       subjectColor: json['subject_color'] as String?,
+      authorName: json['author_name'] as String?,
     );
   }
 
@@ -63,6 +67,7 @@ class MaterialModel {
       'is_shared': isShared,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
+      if (authorName != null) 'author_name': authorName,
     };
   }
 
@@ -80,6 +85,7 @@ class MaterialModel {
     String? subjectName,
     String? subjectCode,
     String? subjectColor,
+    String? authorName,
   }) {
     return MaterialModel(
       id: id ?? this.id,
@@ -95,6 +101,7 @@ class MaterialModel {
       subjectName: subjectName ?? this.subjectName,
       subjectCode: subjectCode ?? this.subjectCode,
       subjectColor: subjectColor ?? this.subjectColor,
+      authorName: authorName ?? this.authorName,
     );
   }
 }

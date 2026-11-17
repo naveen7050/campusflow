@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/app/theme/theme_viewmodel.dart';
 
 class SettingsView extends StatefulWidget {
@@ -24,7 +25,7 @@ class _SettingsViewState extends State<SettingsView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(LucideIcons.chevronLeft, size: 20),
           color: const Color(0xFF1F2937),
           onPressed: () => Navigator.pop(context),
         ),
@@ -275,7 +276,7 @@ class _SettingsTile extends StatelessWidget {
               ),
             ),
             const Icon(
-              Icons.chevron_right,
+              LucideIcons.chevronRight,
               size: 20,
               color: Color(0xFF9CA3AF),
             ),

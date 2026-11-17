@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../viewmodels/note_viewmodel.dart';
 import 'create_note_view.dart';
 
@@ -22,12 +23,7 @@ class _NotesViewState extends State<NotesView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final vm = context.read<NoteViewModel>();
-      if (widget.subjectId != null) {
-        vm.setSubjectFilter(widget.subjectId);
-      } else {
-        vm.fetchNotes();
-      }
+      context.read<NoteViewModel>().setSubjectFilter(widget.subjectId);
     });
   }
 
@@ -59,7 +55,7 @@ class _NotesViewState extends State<NotesView> {
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                icon: const Icon(LucideIcons.chevronLeft, size: 20),
                 color: const Color(0xFF1F2937),
                 onPressed: () => Navigator.pop(context),
               )
@@ -110,13 +106,13 @@ class _NotesViewState extends State<NotesView> {
                                   fontSize: 13,
                                 ),
                                 prefixIcon: const Icon(
-                                  Icons.search,
+                                  LucideIcons.search,
                                   color: Color(0xFF9CA3AF),
-                                  size: 20,
+                                  size: 18,
                                 ),
                                 suffixIcon: _searchController.text.isNotEmpty
                                     ? IconButton(
-                                        icon: const Icon(Icons.clear, size: 18),
+                                        icon: const Icon(LucideIcons.x, size: 16),
                                         onPressed: () {
                                           _searchController.clear();
                                           vm.setSearchQuery('');
@@ -182,7 +178,7 @@ class _NotesViewState extends State<NotesView> {
         foregroundColor: Colors.white,
         elevation: 3,
         tooltip: 'Add Note',
-        child: const Icon(Icons.add, size: 28),
+        child: const Icon(LucideIcons.plus, size: 26),
       ),
     );
   }
@@ -207,7 +203,7 @@ class _NotesViewState extends State<NotesView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(
-                Icons.error_outline_rounded,
+                LucideIcons.alertCircle,
                 size: 48,
                 color: Color(0xFFEF4444),
               ),
@@ -257,8 +253,8 @@ class _NotesViewState extends State<NotesView> {
                   borderRadius: BorderRadius.circular(28),
                 ),
                 child: const Icon(
-                  Icons.edit_note_rounded,
-                  size: 56,
+                  LucideIcons.fileText,
+                  size: 52,
                   color: Color(0xFF0F5132),
                 ),
               ),
@@ -380,7 +376,7 @@ class _NoteCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
-                    Icons.description_outlined,
+                    LucideIcons.fileText,
                     size: 22,
                     color: Color(0xFF0F5132),
                   ),
@@ -435,12 +431,12 @@ class _NoteCard extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     note.isShared
-                        ? Icons.share_rounded
-                        : Icons.share_outlined,
+                        ? LucideIcons.share2
+                        : LucideIcons.share2,
                     color: note.isShared
                         ? const Color(0xFF0F5132)
                         : const Color(0xFF9CA3AF),
-                    size: 20,
+                    size: 18,
                   ),
                   tooltip: note.isShared
                       ? 'Shared with peers'
@@ -463,9 +459,9 @@ class _NoteCard extends StatelessWidget {
                   },
                 ),
                 const Icon(
-                  Icons.chevron_right_rounded,
+                  LucideIcons.chevronRight,
                   color: Color(0xFF9CA3AF),
-                  size: 20,
+                  size: 18,
                 ),
               ],
             ),
@@ -505,13 +501,72 @@ class _NoteCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text(
-                    note.title,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1F2937),
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          note.title,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1F2937),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(LucideIcons.edit2, size: 20),
+                        color: const Color(0xFF0F5132),
+                        tooltip: 'Edit Note',
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CreateNoteView(initialNote: note),
+                            ),
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(LucideIcons.trash2, size: 20),
+                        color: const Color(0xFFEF4444),
+                        tooltip: 'Delete Note',
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (dialogCtx) => AlertDialog(
+                              title: const Text('Delete Note'),
+                              content: Text('Are you sure you want to delete "${note.title}"?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(dialogCtx),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    Navigator.pop(dialogCtx);
+                                    Navigator.pop(context);
+                                    final vm = context.read<NoteViewModel>();
+                                    await vm.deleteNote(note.id);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Note deleted successfully.')),
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFEF4444),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   if (note.subjectName != null)
@@ -523,6 +578,31 @@ class _NoteCard extends StatelessWidget {
                         color: Color(0xFF0F5132),
                       ),
                     ),
+                  if (note.tags.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        for (final tag in note.tags)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEBF5E9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '#$tag',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF0F5132),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   const Divider(color: Color(0xFFE5E7EB)),
                   const SizedBox(height: 12),

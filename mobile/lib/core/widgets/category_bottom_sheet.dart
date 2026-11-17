@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class CategoryBottomSheet extends StatefulWidget {
   final List<String> categories;
@@ -71,7 +72,7 @@ class _CategoryBottomSheetState extends State<CategoryBottomSheet> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+                  icon: const Icon(LucideIcons.chevronLeft, size: 20),
                   color: const Color(0xFF1F2937),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),

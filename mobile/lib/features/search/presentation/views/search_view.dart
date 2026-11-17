@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
 import 'package:campusflow/features/subjects/presentation/views/subject_detail_view.dart';
 import 'package:campusflow/features/notes/presentation/viewmodels/note_viewmodel.dart';
@@ -64,6 +65,15 @@ class _SearchViewState extends State<SearchView> {
 
     final queryLower = _query.toLowerCase();
 
+    final matchingSubjects = _query.isEmpty
+        ? []
+        : subjects
+            .where((s) =>
+                s.name.toLowerCase().contains(queryLower) ||
+                (s.code != null &&
+                    s.code!.toLowerCase().contains(queryLower)))
+            .toList();
+
     final matchingNotes = _query.isEmpty
         ? []
         : notes
@@ -93,7 +103,8 @@ class _SearchViewState extends State<SearchView> {
             .where((a) => a.title.toLowerCase().contains(queryLower))
             .toList();
 
-    final hasResults = matchingNotes.isNotEmpty ||
+    final hasResults = matchingSubjects.isNotEmpty ||
+        matchingNotes.isNotEmpty ||
         matchingMaterials.isNotEmpty ||
         matchingQuestions.isNotEmpty ||
         matchingAssignments.isNotEmpty;
@@ -104,7 +115,7 @@ class _SearchViewState extends State<SearchView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          icon: const Icon(LucideIcons.chevronLeft, size: 20),
           color: const Color(0xFF1F2937),
           onPressed: () => Navigator.pop(context),
         ),
@@ -118,6 +129,18 @@ class _SearchViewState extends State<SearchView> {
             controller: _searchController,
             autofocus: true,
             onChanged: _onSearch,
+            onSubmitted: (val) {
+              final term = val.trim();
+              if (term.isNotEmpty) {
+                setState(() {
+                  _recentSearches.remove(term);
+                  _recentSearches.insert(0, term);
+                  if (_recentSearches.length > 8) {
+                    _recentSearches.removeLast();
+                  }
+                });
+              }
+            },
             style: const TextStyle(
               fontSize: 14,
               color: Color(0xFF1F2937),
@@ -129,13 +152,13 @@ class _SearchViewState extends State<SearchView> {
                 color: Color(0xFF9CA3AF),
               ),
               prefixIcon: const Icon(
-                Icons.search,
+                LucideIcons.search,
                 color: Color(0xFF9CA3AF),
-                size: 20,
+                size: 18,
               ),
               suffixIcon: _query.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear, size: 18),
+                      icon: const Icon(LucideIcons.x, size: 16),
                       color: const Color(0xFF9CA3AF),
                       onPressed: () {
                         _searchController.clear();
@@ -247,7 +270,7 @@ class _SearchViewState extends State<SearchView> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(
-                              Icons.search_off_rounded,
+                              LucideIcons.searchX,
                               size: 48,
                               color: Color(0xFF9CA3AF),
                             ),
@@ -269,13 +292,33 @@ class _SearchViewState extends State<SearchView> {
                           vertical: 12,
                         ),
                         children: [
+                          if (matchingSubjects.isNotEmpty) ...[
+                            _buildSectionHeader(
+                              'Subjects (${matchingSubjects.length})',
+                            ),
+                            for (final s in matchingSubjects)
+                              _SearchResultTile(
+                                icon: LucideIcons.bookOpen,
+                                iconColor: const Color(0xFF0F5132),
+                                title: s.name,
+                                subtitle: '${s.code ?? 'Course'} • ${s.creditHours ?? 3} Credits',
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        SubjectDetailView(subject: s),
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(height: 16),
+                          ],
                           if (matchingQuestions.isNotEmpty) ...[
                             _buildSectionHeader(
                               'Questions (${matchingQuestions.length})',
                             ),
                             for (final q in matchingQuestions)
                               _SearchResultTile(
-                                icon: Icons.quiz_outlined,
+                                icon: LucideIcons.helpCircle,
                                 iconColor: const Color(0xFF0F5132),
                                 title: q.question,
                                 subtitle: q.subjectName ?? 'Question Bank',
@@ -292,7 +335,7 @@ class _SearchViewState extends State<SearchView> {
                             ),
                             for (final n in matchingNotes)
                               _SearchResultTile(
-                                icon: Icons.notes_outlined,
+                                icon: LucideIcons.fileText,
                                 iconColor: const Color(0xFF2E7D32),
                                 title: n.title,
                                 subtitle: n.subjectName ?? 'Notes',
@@ -309,7 +352,7 @@ class _SearchViewState extends State<SearchView> {
                             ),
                             for (final m in matchingMaterials)
                               _SearchResultTile(
-                                icon: Icons.folder_outlined,
+                                icon: LucideIcons.folder,
                                 iconColor: const Color(0xFF1E3A8A),
                                 title: m.title,
                                 subtitle: m.subjectName ?? 'Material',
@@ -326,7 +369,7 @@ class _SearchViewState extends State<SearchView> {
                             ),
                             for (final a in matchingAssignments)
                               _SearchResultTile(
-                                icon: Icons.assignment_outlined,
+                                icon: LucideIcons.clipboardList,
                                 iconColor: const Color(0xFFD97706),
                                 title: a.title,
                                 subtitle: a.subjectName ?? 'Assignment',
@@ -393,7 +436,7 @@ class _CategoryItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
-                Icons.menu_book_rounded,
+                LucideIcons.bookOpen,
                 size: 18,
                 color: Color(0xFF0F5132),
               ),
@@ -420,8 +463,8 @@ class _CategoryItem extends StatelessWidget {
               const SizedBox(width: 8),
             ],
             const Icon(
-              Icons.chevron_right,
-              size: 20,
+              LucideIcons.chevronRight,
+              size: 18,
               color: Color(0xFF9CA3AF),
             ),
           ],
@@ -473,7 +516,7 @@ class _SearchResultTile extends StatelessWidget {
           ),
         ),
         trailing: const Icon(
-          Icons.chevron_right,
+          LucideIcons.chevronRight,
           size: 18,
           color: Color(0xFF9CA3AF),
         ),

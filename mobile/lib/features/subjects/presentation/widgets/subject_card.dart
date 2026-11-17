@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../domain/models/subject_model.dart';
 
 class SubjectCard extends StatelessWidget {
@@ -23,21 +24,21 @@ class SubjectCard extends StatelessWidget {
   IconData _getIcon(String iconName) {
     switch (iconName.toLowerCase()) {
       case 'code':
-        return Icons.code_rounded;
+        return LucideIcons.code;
       case 'storage':
       case 'database':
-        return Icons.storage_rounded;
+        return LucideIcons.database;
       case 'web':
-        return Icons.language_rounded;
+        return LucideIcons.globe;
       case 'phone':
       case 'android':
-        return Icons.android_rounded;
+        return LucideIcons.smartphone;
       case 'calculate':
-        return Icons.calculate_rounded;
+        return LucideIcons.calculator;
       case 'science':
-        return Icons.science_rounded;
+        return LucideIcons.flaskConical;
       default:
-        return Icons.menu_book_rounded;
+        return LucideIcons.bookOpen;
     }
   }
 
@@ -153,7 +154,7 @@ class SubjectCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 const Icon(
-                  Icons.chevron_right_rounded,
+                  LucideIcons.chevronRight,
                   color: Color(0xFF9CA3AF),
                   size: 20,
                 ),

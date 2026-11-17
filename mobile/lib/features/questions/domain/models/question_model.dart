@@ -5,6 +5,7 @@ class QuestionModel {
   final String? subjectName;
   final String? subjectCode;
   final String? subjectColor;
+  final String? authorName;
   final String question;
   final String? answer;
   final String? imageUrl;
@@ -20,6 +21,7 @@ class QuestionModel {
     this.subjectName,
     this.subjectCode,
     this.subjectColor,
+    this.authorName,
     required this.question,
     this.answer,
     this.imageUrl,
@@ -37,6 +39,7 @@ class QuestionModel {
       subjectName: json['subject_name'] as String?,
       subjectCode: json['subject_code'] as String?,
       subjectColor: json['subject_color'] as String?,
+      authorName: json['author_name'] as String?,
       question: json['question'] as String,
       answer: json['answer'] as String?,
       imageUrl: json['image_url'] as String?,
@@ -63,6 +66,7 @@ class QuestionModel {
       'is_shared': isShared,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
+      if (authorName != null) 'author_name': authorName,
     };
   }
 }

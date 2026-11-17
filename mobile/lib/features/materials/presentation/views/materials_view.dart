@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../viewmodels/material_viewmodel.dart';
 import '../widgets/add_material_dialog.dart';
 
@@ -22,12 +23,7 @@ class _MaterialsViewState extends State<MaterialsView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final vm = context.read<MaterialViewModel>();
-      if (widget.subjectId != null) {
-        vm.setSubjectFilter(widget.subjectId);
-      } else {
-        vm.fetchMaterials();
-      }
+      context.read<MaterialViewModel>().setSubjectFilter(widget.subjectId);
     });
   }
 
@@ -59,7 +55,7 @@ class _MaterialsViewState extends State<MaterialsView> {
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                icon: const Icon(LucideIcons.chevronLeft, size: 20),
                 color: const Color(0xFF1F2937),
                 onPressed: () => Navigator.pop(context),
               )
@@ -113,13 +109,13 @@ class _MaterialsViewState extends State<MaterialsView> {
                                   fontSize: 13,
                                 ),
                                 prefixIcon: const Icon(
-                                  Icons.search,
+                                  LucideIcons.search,
                                   color: Color(0xFF9CA3AF),
-                                  size: 20,
+                                  size: 18,
                                 ),
                                 suffixIcon: _searchController.text.isNotEmpty
                                     ? IconButton(
-                                        icon: const Icon(Icons.clear, size: 18),
+                                        icon: const Icon(LucideIcons.x, size: 16),
                                         onPressed: () {
                                           _searchController.clear();
                                           vm.setSearchQuery('');
@@ -188,7 +184,7 @@ class _MaterialsViewState extends State<MaterialsView> {
         foregroundColor: Colors.white,
         elevation: 3,
         tooltip: 'Upload Material',
-        child: const Icon(Icons.add, size: 28),
+        child: const Icon(LucideIcons.plus, size: 26),
       ),
     );
   }
@@ -213,7 +209,7 @@ class _MaterialsViewState extends State<MaterialsView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(
-                Icons.error_outline_rounded,
+                LucideIcons.alertCircle,
                 size: 48,
                 color: Color(0xFFEF4444),
               ),
@@ -262,8 +258,8 @@ class _MaterialsViewState extends State<MaterialsView> {
                   borderRadius: BorderRadius.circular(28),
                 ),
                 child: const Icon(
-                  Icons.folder_open_rounded,
-                  size: 56,
+                  LucideIcons.folder,
+                  size: 52,
                   color: Color(0xFF1E3A8A),
                 ),
               ),
@@ -373,11 +369,7 @@ class _MaterialCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Opening ${material.title}...')),
-            );
-          },
+          onTap: () => _showMaterialDetails(context),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -391,7 +383,7 @@ class _MaterialCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
-                    Icons.picture_as_pdf_outlined,
+                    LucideIcons.fileText,
                     size: 22,
                     color: Color(0xFFDC2626),
                   ),
@@ -450,13 +442,11 @@ class _MaterialCard extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: Icon(
-                        material.isShared
-                            ? Icons.share_rounded
-                            : Icons.share_outlined,
+                        LucideIcons.share2,
                         color: material.isShared
                             ? const Color(0xFF0F5132)
                             : const Color(0xFF9CA3AF),
-                        size: 20,
+                        size: 18,
                       ),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -495,6 +485,205 @@ class _MaterialCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _showMaterialDetails(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEE2E2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        LucideIcons.fileText,
+                        size: 24,
+                        color: Color(0xFFDC2626),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            material.title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1F2937),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${material.fileType} • ${material.fileSize} • $dateStr',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF6B7280),
+                            ),
+                          ),
+                          if (material.subjectName != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              material.subjectName!,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF0F5132),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                if (material.fileUrl != null &&
+                    material.fileUrl!.toString().isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          LucideIcons.link,
+                          size: 18,
+                          color: Color(0xFF6B7280),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            material.fileUrl.toString(),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF1E3A8A),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: const Icon(LucideIcons.edit2, size: 16),
+                        label: const Text('Edit'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF0F5132),
+                          side: const BorderSide(color: Color(0xFF0F5132)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          AddMaterialDialog.show(
+                            context,
+                            initialMaterial: material,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: const Icon(LucideIcons.trash2, size: 16),
+                        label: const Text('Delete'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFFEF4444),
+                          side: const BorderSide(color: Color(0xFFEF4444)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (dialogCtx) => AlertDialog(
+                              title: const Text('Delete Material'),
+                              content: Text(
+                                'Are you sure you want to delete "${material.title}"?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(dialogCtx),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    Navigator.pop(dialogCtx);
+                                    Navigator.pop(ctx);
+                                    final vm =
+                                        context.read<MaterialViewModel>();
+                                    await vm.deleteMaterial(material.id);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Material deleted successfully.',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFEF4444),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../domain/models/subject_model.dart';
 import '../viewmodels/subject_viewmodel.dart';
 
@@ -67,12 +68,12 @@ class _AddEditSubjectDialogState extends State<AddEditSubjectDialog> {
   ];
 
   final List<Map<String, dynamic>> _icons = const [
-    {'name': 'menu_book', 'icon': Icons.menu_book_rounded},
-    {'name': 'code', 'icon': Icons.code_rounded},
-    {'name': 'database', 'icon': Icons.storage_rounded},
-    {'name': 'web', 'icon': Icons.language_rounded},
-    {'name': 'android', 'icon': Icons.android_rounded},
-    {'name': 'calculate', 'icon': Icons.calculate_rounded},
+    {'name': 'menu_book', 'icon': LucideIcons.bookOpen},
+    {'name': 'code', 'icon': LucideIcons.code},
+    {'name': 'database', 'icon': LucideIcons.database},
+    {'name': 'web', 'icon': LucideIcons.globe},
+    {'name': 'android', 'icon': LucideIcons.smartphone},
+    {'name': 'calculate', 'icon': LucideIcons.calculator},
   ];
 
   @override
@@ -192,7 +193,7 @@ class _AddEditSubjectDialogState extends State<AddEditSubjectDialog> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: Color(0xFF6B7280)),
+                  icon: const Icon(LucideIcons.x, color: Color(0xFF6B7280)),
                   onPressed: () => Navigator.pop(context),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -368,7 +369,7 @@ class _AddEditSubjectDialogState extends State<AddEditSubjectDialog> {
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check, size: 16, color: Colors.white)
+                        ? const Icon(LucideIcons.check, size: 16, color: Colors.white)
                         : null,
                   ),
                 );

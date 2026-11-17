@@ -11,6 +11,7 @@ class NoteModel {
   final String? subjectName;
   final String? subjectCode;
   final String? subjectColor;
+  final String? authorName;
 
   const NoteModel({
     required this.id,
@@ -25,6 +26,7 @@ class NoteModel {
     this.subjectName,
     this.subjectCode,
     this.subjectColor,
+    this.authorName,
   });
 
   factory NoteModel.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,7 @@ class NoteModel {
       subjectName: json['subject_name'] as String?,
       subjectCode: json['subject_code'] as String?,
       subjectColor: json['subject_color'] as String?,
+      authorName: json['author_name'] as String?,
     );
   }
 
@@ -62,6 +65,7 @@ class NoteModel {
       'is_shared': isShared,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
+      if (authorName != null) 'author_name': authorName,
     };
   }
 
@@ -78,6 +82,7 @@ class NoteModel {
     String? subjectName,
     String? subjectCode,
     String? subjectColor,
+    String? authorName,
   }) {
     return NoteModel(
       id: id ?? this.id,
@@ -92,6 +97,7 @@ class NoteModel {
       subjectName: subjectName ?? this.subjectName,
       subjectCode: subjectCode ?? this.subjectCode,
       subjectColor: subjectColor ?? this.subjectColor,
+      authorName: authorName ?? this.authorName,
     );
   }
 }

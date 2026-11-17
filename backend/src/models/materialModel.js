@@ -15,9 +15,11 @@ const MaterialModel = {
   async findAll({ userId, subjectId, filter }) {
     let query = `
       SELECT m.id, m.user_id, m.subject_id, m.title, m.file_url, m.file_type, m.file_size, m.is_shared,
-             m.created_at, m.updated_at, s.name as subject_name, s.code as subject_code, s.color as subject_color
+             m.created_at, m.updated_at, s.name as subject_name, s.code as subject_code, s.color as subject_color,
+             u.full_name as author_name
       FROM materials m
       LEFT JOIN subjects s ON m.subject_id = s.id
+      LEFT JOIN users u ON m.user_id = u.id
     `;
     const conditions = [];
     const values = [];

@@ -92,7 +92,56 @@ class AuthRepository {
 
   Future<bool> hasValidToken() async {
     final token = await _storageService.getToken();
-    return token != null && token.isNotEmpty;
+    if (token == null || token.isEmpty) return false;
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return false;
+      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final map = jsonDecode(payload) as Map<String, dynamic>;
+      if (map.containsKey('exp')) {
+        final exp = map['exp'] as int;
+        final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+        if (DateTime.now().isAfter(expiryDate)) {
+          await _storageService.clearAll();
+          return false;
+        }
+      }
+    } catch (_) {}
+    return true;
+  }
+
+  Future<UserModel> updateProfile({
+    String? fullName,
+    String? department,
+    int? semester,
+  }) async {
+    final response = await _apiClient.put(
+      '/auth/profile',
+      requireAuth: true,
+      body: {
+        if (fullName != null) 'fullName': fullName,
+        if (department != null) 'department': department,
+        if (semester != null) 'semester': semester,
+      },
+    );
+    final data = response['data'] as Map<String, dynamic>;
+    final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+    await _storageService.saveUserData(jsonEncode(user.toJson()));
+    return user;
+  }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _apiClient.put(
+      '/auth/change-password',
+      requireAuth: true,
+      body: {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      },
+    );
   }
 
   Future<void> logout() async {

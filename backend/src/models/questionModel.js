@@ -16,9 +16,11 @@ const QuestionModel = {
     let query = `
       SELECT q.id, q.user_id, q.subject_id, q.question, q.answer, q.image_url,
              q.is_starred, q.is_shared, q.created_at, q.updated_at,
-             s.name as subject_name, s.code as subject_code, s.color as subject_color
+             s.name as subject_name, s.code as subject_code, s.color as subject_color,
+             u.full_name as author_name
       FROM questions q
       LEFT JOIN subjects s ON q.subject_id = s.id
+      LEFT JOIN users u ON q.user_id = u.id
     `;
     const conditions = [];
     const values = [];

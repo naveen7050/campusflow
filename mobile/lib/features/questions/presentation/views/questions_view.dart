@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:campusflow/core/widgets/app_network_or_memory_image.dart';
 import 'package:campusflow/features/questions/domain/models/question_model.dart';
 import 'package:campusflow/features/questions/presentation/viewmodels/question_viewmodel.dart';
 import 'create_question_view.dart';
@@ -23,12 +25,7 @@ class _QuestionsViewState extends State<QuestionsView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final vm = context.read<QuestionViewModel>();
-      if (widget.subjectId != null) {
-        vm.setSubjectFilter(widget.subjectId);
-      } else {
-        vm.fetchQuestions();
-      }
+      context.read<QuestionViewModel>().setSubjectFilter(widget.subjectId);
     });
   }
 
@@ -50,7 +47,7 @@ class _QuestionsViewState extends State<QuestionsView> {
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+                icon: const Icon(LucideIcons.chevronLeft, size: 20),
                 color: const Color(0xFF1F2937),
                 onPressed: () => Navigator.pop(context),
               )
@@ -101,10 +98,10 @@ class _QuestionsViewState extends State<QuestionsView> {
                                   fontSize: 13,
                                   color: Color(0xFF9CA3AF),
                                 ),
-                                prefixIcon: Icon(
-                                  Icons.search,
+                                prefixIcon: const Icon(
+                                  LucideIcons.search,
                                   color: Color(0xFF9CA3AF),
-                                  size: 20,
+                                  size: 18,
                                 ),
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.symmetric(
@@ -154,7 +151,7 @@ class _QuestionsViewState extends State<QuestionsView> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       const Icon(
-                                        Icons.error_outline,
+                                        LucideIcons.alertCircle,
                                         size: 48,
                                         color: Colors.red,
                                       ),
@@ -234,7 +231,7 @@ class _QuestionsViewState extends State<QuestionsView> {
         foregroundColor: Colors.white,
         shape: const CircleBorder(),
         elevation: 4,
-        child: const Icon(Icons.add, size: 28),
+        child: const Icon(LucideIcons.plus, size: 26),
       ),
     );
   }
@@ -254,8 +251,8 @@ class _QuestionsViewState extends State<QuestionsView> {
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.quiz_outlined,
-                size: 40,
+                LucideIcons.helpCircle,
+                size: 38,
                 color: Color(0xFF0F5132),
               ),
             ),
@@ -282,7 +279,7 @@ class _QuestionsViewState extends State<QuestionsView> {
               onPressed: () {
                 Navigator.pushNamed(context, CreateQuestionView.routeName);
               },
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(LucideIcons.plus, size: 16),
               label: const Text('Add Question'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0F5132),
@@ -403,13 +400,11 @@ class _QuestionCardState extends State<_QuestionCard> {
                 children: [
                   IconButton(
                     icon: Icon(
-                      q.isShared
-                          ? Icons.share_rounded
-                          : Icons.share_outlined,
+                      LucideIcons.share2,
                       color: q.isShared
                           ? const Color(0xFF0F5132)
                           : const Color(0xFF9CA3AF),
-                      size: 20,
+                      size: 18,
                     ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
@@ -433,16 +428,91 @@ class _QuestionCardState extends State<_QuestionCard> {
                   const SizedBox(width: 8),
                   IconButton(
                     icon: Icon(
-                      q.isStarred
-                          ? Icons.star_rounded
-                          : Icons.star_border_rounded,
+                      LucideIcons.star,
                       color:
                           q.isStarred ? Colors.amber : const Color(0xFF9CA3AF),
-                      size: 22,
+                      size: 18,
                     ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     onPressed: () => vm.toggleStar(q.id),
+                  ),
+                  const SizedBox(width: 4),
+                  PopupMenuButton<String>(
+                    icon: const Icon(
+                      LucideIcons.moreVertical,
+                      size: 18,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onSelected: (val) {
+                      if (val == 'edit') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CreateQuestionView(
+                              initialQuestion: q,
+                            ),
+                          ),
+                        );
+                      } else if (val == 'delete') {
+                        showDialog(
+                          context: context,
+                          builder: (dialogCtx) => AlertDialog(
+                            title: const Text('Delete Question'),
+                            content: const Text(
+                              'Are you sure you want to delete this question?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(dialogCtx),
+                                child: const Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(dialogCtx);
+                                  vm.deleteQuestion(q.id);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Question deleted successfully.'),
+                                      backgroundColor: Color(0xFF0F5132),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(LucideIcons.edit2, size: 16),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(LucideIcons.trash2, color: Colors.red, size: 16),
+                            SizedBox(width: 8),
+                            Text('Delete', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -461,6 +531,20 @@ class _QuestionCardState extends State<_QuestionCard> {
           ),
           const SizedBox(height: 10),
 
+          // Attached Diagram / Image if present
+          if (q.imageUrl != null && q.imageUrl!.trim().isNotEmpty) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: AppNetworkOrMemoryImage(
+                imageUrl: q.imageUrl!,
+                height: 160,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+
           // Answer Section Toggle
           if (q.answer != null && q.answer!.isNotEmpty) ...[
             InkWell(
@@ -472,8 +556,8 @@ class _QuestionCardState extends State<_QuestionCard> {
                   children: [
                     Icon(
                       _showAnswer
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
+                          ? LucideIcons.chevronUp
+                          : LucideIcons.chevronDown,
                       size: 18,
                       color: const Color(0xFF0F5132),
                     ),

@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'login_view.dart';
 
 class OnboardingView extends StatefulWidget {
@@ -15,17 +16,17 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   final List<_OnboardingData> _pages = const [
     _OnboardingData(
-      icon: Icons.collections_bookmark_outlined,
+      icon: LucideIcons.bookMarked,
       title: 'Keep your study material in one place',
       body: 'Save notes, questions, PDFs and more — all organized and easy to find.',
     ),
     _OnboardingData(
-      icon: Icons.devices_outlined,
+      icon: LucideIcons.laptop,
       title: 'Access anytime, anywhere',
       body: 'Your resources, always with you — on any device.',
     ),
     _OnboardingData(
-      icon: Icons.people_outline,
+      icon: LucideIcons.users,
       title: 'Share & help others',
       body: 'Collaborate, share and build a stronger community.',
     ),
@@ -184,7 +185,32 @@ class _OnboardingViewState extends State<OnboardingView> {
                 ),
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 14),
+            // Direct Log In action
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Already have an account? ',
+                  style: TextStyle(
+                    color: Color(0xFF6B7280),
+                    fontSize: 13,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _goToLogin,
+                  child: const Text(
+                    'Log In',
+                    style: TextStyle(
+                      color: Color(0xFF0F5132),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),

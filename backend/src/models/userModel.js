@@ -31,6 +31,32 @@ const UserModel = {
     const result = await db.query(query, [id]);
     return result.rows[0] || null;
   },
+
+  async updateProfile(id, { fullName, department, semester }) {
+    const query = `
+      UPDATE users
+      SET
+        full_name = COALESCE($2, full_name),
+        department = COALESCE($3, department),
+        semester = COALESCE($4, semester),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING id, full_name, email, student_id, department, semester, role, avatar_url, created_at, updated_at;
+    `;
+    const values = [id, fullName || null, department || null, semester || null];
+    const result = await db.query(query, values);
+    return result.rows[0] || null;
+  },
+
+  async updatePassword(id, passwordHash) {
+    const query = `
+      UPDATE users
+      SET password_hash = $2, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1;
+    `;
+    await db.query(query, [id, passwordHash]);
+    return true;
+  },
 };
 
 module.exports = UserModel;

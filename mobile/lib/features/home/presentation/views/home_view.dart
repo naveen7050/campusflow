@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import 'package:campusflow/features/auth/presentation/views/login_view.dart';
 import 'package:campusflow/features/subjects/presentation/views/subjects_view.dart';
@@ -11,6 +12,11 @@ import 'package:campusflow/features/assignments/presentation/views/assignments_v
 import 'package:campusflow/features/shared/presentation/views/shared_with_me_view.dart';
 import 'package:campusflow/features/profile/presentation/views/profile_view.dart';
 import 'package:campusflow/features/search/presentation/views/search_view.dart';
+import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
+import 'package:campusflow/features/notes/presentation/viewmodels/note_viewmodel.dart';
+import 'package:campusflow/features/materials/presentation/viewmodels/material_viewmodel.dart';
+import 'package:campusflow/features/questions/presentation/viewmodels/question_viewmodel.dart';
+import 'package:campusflow/features/assignments/presentation/viewmodels/assignment_viewmodel.dart';
 
 class HomeView extends StatefulWidget {
   static const String routeName = '/home';
@@ -24,6 +30,25 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshAll();
+    });
+  }
+
+  Future<void> _refreshAll() async {
+    if (!mounted) return;
+    await Future.wait([
+      context.read<SubjectViewModel>().fetchSubjects(),
+      context.read<NoteViewModel>().fetchNotes(),
+      context.read<MaterialViewModel>().fetchMaterials(),
+      context.read<QuestionViewModel>().fetchQuestions(),
+      context.read<AssignmentViewModel>().fetchAssignments(),
+    ]);
+  }
+
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) return 'Good Morning';
@@ -32,9 +57,33 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _handleLogout(AuthViewModel authViewModel) async {
-    await authViewModel.logout();
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, LoginView.routeName);
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Log Out'),
+        content: const Text('Are you sure you want to log out of CampusFlow?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogCtx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true) {
+      await authViewModel.logout();
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, LoginView.routeName);
+      }
     }
   }
 
@@ -46,11 +95,9 @@ class _HomeViewState extends State<HomeView> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: _selectedIndex == 0
-            ? _buildHomeBody(authViewModel, user, firstName)
-            : _buildPlaceholder(_selectedIndex),
-      ),
+      body: _selectedIndex == 0
+          ? SafeArea(child: _buildHomeBody(authViewModel, user, firstName))
+          : _buildPlaceholder(_selectedIndex),
       bottomNavigationBar: _buildBottomNav(),
       floatingActionButton: _buildFab(authViewModel),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -58,241 +105,324 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildHomeBody(dynamic authViewModel, dynamic user, String firstName) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top bar
-                Row(
-                  children: [
-                    // Logo
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEBF5E9),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.menu_book_rounded,
-                        size: 20,
-                        color: Color(0xFF0F5132),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'CampusFlow',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF0F5132),
-                      ),
-                    ),
-                    const Spacer(),
-                    // Notification
-                    IconButton(
-                      icon: const Icon(
-                        Icons.notifications_none_outlined,
-                        color: Color(0xFF1F2937),
-                        size: 24,
-                      ),
-                      onPressed: () {},
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 12),
-                    // Avatar / logout
-                    GestureDetector(
-                      onTap: () => _handleLogout(authViewModel),
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: const Color(0xFF0F5132),
-                        child: Text(
-                          user != null && user.fullName.isNotEmpty
-                              ? user.fullName[0].toUpperCase()
-                              : 'U',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
+    final questionVm = context.watch<QuestionViewModel>();
+    final noteVm = context.watch<NoteViewModel>();
+    final materialVm = context.watch<MaterialViewModel>();
+    final assignmentVm = context.watch<AssignmentViewModel>();
+
+    final recentItems = <_DashboardRecentItem>[];
+
+    for (final q in questionVm.questions) {
+      recentItems.add(_DashboardRecentItem(
+        title: q.question,
+        subtitle: q.subjectName ?? 'Question',
+        icon: LucideIcons.helpCircle,
+        iconBg: const Color(0xFFEBF5E9),
+        iconColor: const Color(0xFF0F5132),
+        createdAt: q.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+        onTap: () => Navigator.pushNamed(context, QuestionsView.routeName),
+      ));
+    }
+
+    for (final n in noteVm.notes) {
+      recentItems.add(_DashboardRecentItem(
+        title: n.title,
+        subtitle: n.subjectName ?? 'Note',
+        icon: LucideIcons.fileText,
+        iconBg: const Color(0xFFEBF5E9),
+        iconColor: const Color(0xFF0F5132),
+        createdAt: n.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+        onTap: () => Navigator.pushNamed(context, NotesView.routeName),
+      ));
+    }
+
+    for (final m in materialVm.materials) {
+      recentItems.add(_DashboardRecentItem(
+        title: m.title,
+        subtitle: m.subjectName ?? m.fileType.toUpperCase(),
+        icon: LucideIcons.folder,
+        iconBg: const Color(0xFFEBF5E9),
+        iconColor: const Color(0xFF0F5132),
+        createdAt: m.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+        onTap: () => Navigator.pushNamed(context, MaterialsView.routeName),
+      ));
+    }
+
+    for (final a in assignmentVm.assignments) {
+      final dueStr = a.dueDate != null
+          ? 'Due: ${a.dueDate!.day}/${a.dueDate!.month}/${a.dueDate!.year}'
+          : (a.subjectName ?? 'Assignment');
+      recentItems.add(_DashboardRecentItem(
+        title: a.title,
+        subtitle: dueStr,
+        icon: LucideIcons.clipboardList,
+        iconBg: const Color(0xFFFFFBEB),
+        iconColor: const Color(0xFFD97706),
+        createdAt: a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+        onTap: () => Navigator.pushNamed(context, AssignmentsView.routeName),
+      ));
+    }
+
+    recentItems.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final displayRecent = recentItems.take(5).toList();
+
+    return RefreshIndicator(
+      onRefresh: _refreshAll,
+      color: const Color(0xFF0F5132),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top bar
+                  Row(
+                    children: [
+                      // Logo
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEBF5E9),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Greeting
-                Text(
-                  '${_getGreeting()}, $firstName 👋',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1F2937),
-                    letterSpacing: -0.3,
-                  ),
-                ),
-                const SizedBox(height: 14),
-
-                // Search bar
-                InkWell(
-                  onTap: () => Navigator.pushNamed(context, SearchView.routeName),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(width: 14),
-                        Icon(
-                          Icons.search,
-                          color: Color(0xFF9CA3AF),
+                        child: const Icon(
+                          LucideIcons.bookOpen,
                           size: 20,
+                          color: Color(0xFF0F5132),
                         ),
-                        SizedBox(width: 10),
-                        Expanded(
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'CampusFlow',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F5132),
+                        ),
+                      ),
+                      const Spacer(),
+                      // Notification
+                      IconButton(
+                        icon: const Icon(
+                          LucideIcons.bell,
+                          color: Color(0xFF1F2937),
+                          size: 22,
+                        ),
+                        onPressed: () {},
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                      const SizedBox(width: 12),
+                      // Avatar / logout
+                      GestureDetector(
+                        onTap: () => _handleLogout(authViewModel),
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: const Color(0xFF0F5132),
                           child: Text(
-                            'Search notes, questions, or files...',
-                            style: TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 13,
+                            user != null && user.fullName.isNotEmpty
+                                ? user.fullName[0].toUpperCase()
+                                : 'U',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Greeting
+                  Text(
+                    '${_getGreeting()}, $firstName 👋',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1F2937),
+                      letterSpacing: -0.3,
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 14),
 
-                // Quick stats
-                Row(
-                  children: [
-                    _StatChip(
-                      icon: Icons.quiz_outlined,
-                      label: 'Questions',
-                      count: '12 items',
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        QuestionsView.routeName,
+                  // Search bar
+                  InkWell(
+                    onTap: () => Navigator.pushNamed(context, SearchView.routeName),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Row(
+                        children: [
+                          SizedBox(width: 14),
+                          Icon(
+                            LucideIcons.search,
+                            color: Color(0xFF9CA3AF),
+                            size: 18,
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Search notes, questions, or files...',
+                              style: TextStyle(
+                                color: Color(0xFF9CA3AF),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    _StatChip(
-                      icon: Icons.notes_outlined,
-                      label: 'Notes',
-                      count: '9 items',
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        NotesView.routeName,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    _StatChip(
-                      icon: Icons.folder_outlined,
-                      label: 'Materials',
-                      count: '5 items',
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        MaterialsView.routeName,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    _StatChip(
-                      icon: Icons.assignment_outlined,
-                      label: 'Tasks',
-                      count: '3 items',
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        AssignmentsView.routeName,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
+                  ),
+                  const SizedBox(height: 20),
 
-                // Recent header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Recent',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1F2937),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => setState(() => _selectedIndex = 1),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: const Text(
-                        'View all >',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Color(0xFF0F5132),
-                          fontWeight: FontWeight.w500,
+                  // Quick stats
+                  Row(
+                    children: [
+                      _StatChip(
+                        icon: LucideIcons.helpCircle,
+                        label: 'Questions',
+                        count: '${questionVm.questions.length} items',
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          QuestionsView.routeName,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
+                      const SizedBox(width: 8),
+                      _StatChip(
+                        icon: LucideIcons.fileText,
+                        label: 'Notes',
+                        count: '${noteVm.notes.length} items',
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          NotesView.routeName,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _StatChip(
+                        icon: LucideIcons.folder,
+                        label: 'Materials',
+                        count: '${materialVm.materials.length} items',
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          MaterialsView.routeName,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _StatChip(
+                        icon: LucideIcons.clipboardList,
+                        label: 'Tasks',
+                        count: '${assignmentVm.assignments.length} items',
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AssignmentsView.routeName,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
 
-                // Recent items
-                _RecentItem(
-                  icon: Icons.quiz_outlined,
-                  iconBg: const Color(0xFFEBF5E9),
-                  iconColor: const Color(0xFF0F5132),
-                  title: 'DBMS Important Questions',
-                  subtitle: 'Database Management Systems',
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    QuestionsView.routeName,
+                  // Recent header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Recent',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1F2937),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => setState(() => _selectedIndex = 1),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text(
+                          'View all >',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF0F5132),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 10),
-                _RecentItem(
-                  icon: Icons.notes_outlined,
-                  iconBg: const Color(0xFFEBF5E9),
-                  iconColor: const Color(0xFF0F5132),
-                  title: 'OOP Concepts Notes',
-                  subtitle: 'Object Oriented Programming',
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    NotesView.routeName,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _RecentItem(
-                  icon: Icons.assignment_outlined,
-                  iconBg: const Color(0xFFFFFBEB),
-                  iconColor: const Color(0xFFD97706),
-                  title: 'DBMS Assignment',
-                  subtitle: 'Due: 12 Sep 2025 • Database Management',
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    AssignmentsView.routeName,
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
+                  const SizedBox(height: 12),
+
+                  // Recent items
+                  if (displayRecent.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF9FAFB),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              LucideIcons.history,
+                              size: 36,
+                              color: Colors.grey.shade400,
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'No recent activity yet',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Color(0xFF4B5563),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Add notes, questions, or assignments to track them here.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF9CA3AF),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ...displayRecent.map((item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _RecentItem(
+                            icon: item.icon,
+                            iconBg: item.iconBg,
+                            iconColor: item.iconColor,
+                            title: item.title,
+                            subtitle: item.subtitle,
+                            onTap: item.onTap,
+                          ),
+                        )),
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -322,16 +452,16 @@ class _HomeViewState extends State<HomeView> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _NavItem(
-              icon: Icons.home_outlined,
-              activeIcon: Icons.home_rounded,
+              icon: LucideIcons.home,
+              activeIcon: LucideIcons.home,
               label: 'Home',
               index: 0,
               selectedIndex: _selectedIndex,
               onTap: (i) => setState(() => _selectedIndex = i),
             ),
             _NavItem(
-              icon: Icons.explore_outlined,
-              activeIcon: Icons.explore_rounded,
+              icon: LucideIcons.compass,
+              activeIcon: LucideIcons.compass,
               label: 'Explore',
               index: 1,
               selectedIndex: _selectedIndex,
@@ -339,16 +469,16 @@ class _HomeViewState extends State<HomeView> {
             ),
             const SizedBox(width: 48), // Space for FAB
             _NavItem(
-              icon: Icons.share_outlined,
-              activeIcon: Icons.share_rounded,
+              icon: LucideIcons.share2,
+              activeIcon: LucideIcons.share2,
               label: 'Shared',
               index: 3,
               selectedIndex: _selectedIndex,
               onTap: (i) => setState(() => _selectedIndex = i),
             ),
             _NavItem(
-              icon: Icons.person_outline_rounded,
-              activeIcon: Icons.person_rounded,
+              icon: LucideIcons.user,
+              activeIcon: LucideIcons.user,
               label: 'Profile',
               index: 4,
               selectedIndex: _selectedIndex,
@@ -367,7 +497,7 @@ class _HomeViewState extends State<HomeView> {
       foregroundColor: Colors.white,
       elevation: 4,
       shape: const CircleBorder(),
-      child: const Icon(Icons.add, size: 28),
+      child: const Icon(LucideIcons.plus, size: 26),
     );
   }
 }
@@ -509,7 +639,7 @@ class _RecentItem extends StatelessWidget {
                   ),
                 ),
                 const Icon(
-                  Icons.chevron_right,
+                  LucideIcons.chevronRight,
                   color: Color(0xFF9CA3AF),
                   size: 18,
                 ),
@@ -573,4 +703,24 @@ class _NavItem extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DashboardRecentItem {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color iconBg;
+  final Color iconColor;
+  final DateTime createdAt;
+  final VoidCallback onTap;
+
+  _DashboardRecentItem({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.iconBg,
+    required this.iconColor,
+    required this.createdAt,
+    required this.onTap,
+  });
 }

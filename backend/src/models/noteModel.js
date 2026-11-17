@@ -15,9 +15,11 @@ const NoteModel = {
   async findAll({ userId, subjectId, filter }) {
     let query = `
       SELECT n.id, n.user_id, n.subject_id, n.title, n.content, n.tags, n.is_shared,
-             n.created_at, n.updated_at, s.name as subject_name, s.code as subject_code, s.color as subject_color
+             n.created_at, n.updated_at, s.name as subject_name, s.code as subject_code, s.color as subject_color,
+             u.full_name as author_name
       FROM notes n
       LEFT JOIN subjects s ON n.subject_id = s.id
+      LEFT JOIN users u ON n.user_id = u.id
     `;
     const conditions = [];
     const values = [];
