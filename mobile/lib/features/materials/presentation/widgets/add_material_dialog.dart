@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
+import 'package:campusflow/features/subjects/presentation/widgets/add_edit_subject_dialog.dart';
 import 'package:campusflow/features/materials/presentation/viewmodels/material_viewmodel.dart';
 import 'package:campusflow/features/materials/domain/models/material_model.dart';
 import 'package:campusflow/app/theme/app_colors.dart';
@@ -27,6 +29,7 @@ class AddMaterialDialog extends StatefulWidget {
       return showDialog<bool>(
         context: context,
         builder: (context) => Dialog(
+          backgroundColor: context.cardBg,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -45,8 +48,7 @@ class AddMaterialDialog extends StatefulWidget {
         isScrollControlled: true,
         backgroundColor: context.cardBg,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
         builder: (context) => Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -73,6 +75,8 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
   String _selectedFileType = 'PDF';
   String _selectedFileSize = '1.5 MB';
   bool _isShared = false;
+  String? _pickedFileName;
+  String? _pickedFilePath;
 
   final List<String> _fileTypes = const ['PDF', 'DOCX', 'PPT', 'Link'];
 
@@ -86,6 +90,11 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
       _selectedFileType = widget.initialMaterial!.fileType;
       _selectedFileSize = widget.initialMaterial!.fileSize;
       _isShared = widget.initialMaterial!.isShared;
+      if (widget.initialMaterial!.fileUrl != null &&
+          !widget.initialMaterial!.fileUrl!.startsWith('http')) {
+        _pickedFilePath = widget.initialMaterial!.fileUrl;
+        _pickedFileName = widget.initialMaterial!.fileUrl!.split(RegExp(r'[\\/]')).last;
+      }
     } else {
       _selectedSubjectId = widget.initialSubjectId;
     }
@@ -101,18 +110,62 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
     super.dispose();
   }
 
+  Future<void> _pickFile() async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+
+      if (picked != null) {
+        final path = picked.path;
+        final name = picked.name;
+        final sizeBytes = await picked.length();
+        final sizeInMb = (sizeBytes / (1024 * 1024)).toStringAsFixed(1);
+
+        setState(() {
+          _pickedFilePath = path;
+          _pickedFileName = name;
+          _selectedFileSize = '$sizeInMb MB';
+          _urlController.text = path;
+
+          final ext = name.split('.').last.toLowerCase();
+          if (ext == 'pdf') {
+            _selectedFileType = 'PDF';
+          } else if (ext == 'docx' || ext == 'doc') {
+            _selectedFileType = 'DOCX';
+          } else if (ext == 'ppt' || ext == 'pptx') {
+            _selectedFileType = 'PPT';
+          }
+
+          if (_titleController.text.trim().isEmpty) {
+            final baseName = name.replaceAll(RegExp(r'\.[^.]+$'), '');
+            _titleController.text = baseName;
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to select file: $e')),
+        );
+      }
+    }
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     final vm = context.read<MaterialViewModel>();
     bool success;
 
+    final finalFileUrl = _pickedFilePath ??
+        (_urlController.text.trim().isEmpty ? null : _urlController.text.trim());
+
     if (widget.initialMaterial != null) {
       success = await vm.updateMaterial(
         id: widget.initialMaterial!.id,
         subjectId: _selectedSubjectId,
         title: _titleController.text,
-        fileUrl: _urlController.text.trim().isEmpty ? null : _urlController.text.trim(),
+        fileUrl: finalFileUrl,
         fileType: _selectedFileType,
         fileSize: _selectedFileSize,
         isShared: _isShared,
@@ -121,7 +174,7 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
       success = await vm.createMaterial(
         subjectId: _selectedSubjectId,
         title: _titleController.text,
-        fileUrl: _urlController.text.trim().isEmpty ? null : _urlController.text.trim(),
+        fileUrl: finalFileUrl,
         fileType: _selectedFileType,
         fileSize: _selectedFileSize,
         isShared: _isShared,
@@ -142,28 +195,35 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
     }
   }
 
-  static const _inputDecoration = InputDecoration(
-    filled: true,
-    fillColor: Color(0xFFF3F4F6),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide.none,
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide.none,
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(10)),
-      borderSide: BorderSide(color: Color(0xFF0F5132), width: 1.5),
-    ),
-    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-  );
+  InputDecoration _inputDeco(BuildContext context, String hint) {
+    return InputDecoration(
+      filled: true,
+      fillColor: context.isDarkMode
+          ? const Color(0xFF262626)
+          : const Color(0xFFF3F4F6),
+      border: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        borderSide: BorderSide(color: context.cardBorder),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        borderSide: BorderSide(color: context.primaryAccent, width: 1.5),
+      ),
+      hintText: hint,
+      hintStyle: TextStyle(color: context.textSecondary, fontSize: 13),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final subjects = context.watch<SubjectViewModel>().subjects;
     final isSaving = context.watch<MaterialViewModel>().isSaving;
+    final isDark = context.isDarkMode;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
@@ -179,7 +239,7 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
+                  color: context.cardBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -199,7 +259,7 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(LucideIcons.x, color: Color(0xFF6B7280)),
+                  icon: Icon(LucideIcons.x, color: context.textSecondary),
                   onPressed: () => Navigator.pop(context),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -211,10 +271,10 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
             // Title
             TextFormField(
               controller: _titleController,
-              style: const TextStyle(fontSize: 14, color: Color(0xFF1F2937)),
-              decoration: _inputDecoration.copyWith(
-                hintText: 'Document Title (e.g. OOP PPT or DBMS Notes)',
-                hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+              style: TextStyle(fontSize: 14, color: context.textPrimary),
+              decoration: _inputDeco(
+                context,
+                'Document Title (e.g. OOP PPT or DBMS Notes)',
               ),
               validator: (val) {
                 if (val == null || val.trim().isEmpty) {
@@ -226,31 +286,110 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
             const SizedBox(height: 12),
 
             // Subject Selector
-            DropdownButtonFormField<String>(
-              value: _selectedSubjectId,
-              dropdownColor: Colors.white,
-              style: const TextStyle(fontSize: 14, color: Color(0xFF1F2937)),
-              decoration: _inputDecoration.copyWith(
-                hintText: 'Select Subject (Optional)',
-                hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
-              ),
-              items: subjects.map((sub) {
-                return DropdownMenuItem(
-                  value: sub.id,
-                  child: Text('${sub.name} (${sub.code ?? ""})'),
-                );
-              }).toList(),
-              onChanged: (val) => setState(() => _selectedSubjectId = val),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Subject',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: context.textSecondary,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () async {
+                    final created = await AddEditSubjectDialog.show(context);
+                    if (created != null && mounted) {
+                      setState(() {
+                        _selectedSubjectId = created.id;
+                      });
+                    }
+                  },
+                  icon: const Icon(LucideIcons.plus, size: 14),
+                  label: const Text(
+                    'New Subject',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    foregroundColor: context.primaryAccent,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
+            DropdownButtonFormField<String?>(
+              value: subjects.any((s) => s.id == _selectedSubjectId)
+                  ? _selectedSubjectId
+                  : null,
+              dropdownColor: context.cardBg,
+              style: TextStyle(fontSize: 14, color: context.textPrimary),
+              decoration: _inputDeco(context, 'Select Subject (Optional)'),
+              items: [
+                DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text(
+                    'No Subject (General)',
+                    style: TextStyle(color: context.textSecondary),
+                  ),
+                ),
+                ...subjects.map((sub) {
+                  final displayCode =
+                      (sub.code != null && sub.code!.isNotEmpty)
+                          ? ' (${sub.code})'
+                          : '';
+                  return DropdownMenuItem<String?>(
+                    value: sub.id,
+                    child: Text(
+                      '${sub.name}$displayCode',
+                      style: TextStyle(color: context.textPrimary),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  );
+                }),
+                DropdownMenuItem<String?>(
+                  value: '__create_new__',
+                  child: Row(
+                    children: [
+                      Icon(LucideIcons.plusCircle,
+                          size: 16, color: context.primaryAccent),
+                      const SizedBox(width: 8),
+                      Text(
+                        '+ Add New Subject...',
+                        style: TextStyle(
+                          color: context.primaryAccent,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              onChanged: (val) async {
+                if (val == '__create_new__') {
+                  final created = await AddEditSubjectDialog.show(context);
+                  if (created != null && mounted) {
+                    setState(() => _selectedSubjectId = created.id);
+                  } else if (mounted) {
+                    setState(() {});
+                  }
+                } else {
+                  setState(() => _selectedSubjectId = val);
+                }
+              },
+            ),
+            const SizedBox(height: 14),
 
             // File Type Selector Chips
-            const Text(
+            Text(
               'File Format',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF4B5563),
+                color: context.textSecondary,
               ),
             ),
             const SizedBox(height: 8),
@@ -267,32 +406,148 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? const Color(0xFF0F5132)
-                          : const Color(0xFFF3F4F6),
+                          ? context.primaryAccent
+                          : (isDark
+                              ? const Color(0xFF262626)
+                              : const Color(0xFFF3F4F6)),
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? context.primaryAccent
+                            : context.cardBorder,
+                      ),
                     ),
                     child: Text(
                       type,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color:
-                            isSelected ? Colors.white : const Color(0xFF4B5563),
+                        color: isSelected ? Colors.white : context.textSecondary,
                       ),
                     ),
                   ),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
 
-            // Document Link / URL
+            // Browse File Action / Selected File Display
+            if (_pickedFilePath != null)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: context.primaryAccent.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: context.primaryAccent.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: context.primaryAccent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        _selectedFileType == 'PDF'
+                            ? LucideIcons.fileText
+                            : (_selectedFileType == 'PPT'
+                                ? LucideIcons.presentation
+                                : LucideIcons.file),
+                        color: context.primaryAccent,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _pickedFileName ?? 'Selected File',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: context.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$_selectedFileType • $_selectedFileSize',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: context.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(LucideIcons.x, size: 18),
+                      color: context.textSecondary,
+                      tooltip: 'Remove File',
+                      onPressed: () {
+                        setState(() {
+                          _pickedFilePath = null;
+                          _pickedFileName = null;
+                          _urlController.clear();
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              )
+            else
+              InkWell(
+                onTap: _pickFile,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF222222)
+                        : const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: context.cardBorder,
+                      style: BorderStyle.solid,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        LucideIcons.uploadCloud,
+                        color: context.primaryAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Browse and Upload File ($_selectedFileType)',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: context.primaryAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            const SizedBox(height: 12),
+
+            // Document Link / URL Option
             TextFormField(
               controller: _urlController,
-              style: const TextStyle(fontSize: 14, color: Color(0xFF1F2937)),
-              decoration: _inputDecoration.copyWith(
-                hintText: 'File URL or Cloud Drive Link (Optional)',
-                hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+              style: TextStyle(fontSize: 14, color: context.textPrimary),
+              decoration: _inputDeco(
+                context,
+                'Or Paste Cloud Link (Google Drive, OneDrive, Web)',
               ),
             ),
             const SizedBox(height: 14),
@@ -301,24 +556,24 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
+                color: isDark ? const Color(0xFF222222) : const Color(0xFFF9FAFB),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
+                border: Border.all(color: context.cardBorder),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Share with Classmates',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1F2937),
+                      color: context.textPrimary,
                     ),
                   ),
                   Switch(
                     value: _isShared,
-                    activeThumbColor: const Color(0xFF0F5132),
+                    activeThumbColor: context.primaryAccent,
                     onChanged: (val) => setState(() => _isShared = val),
                   ),
                 ],
@@ -332,7 +587,7 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
               child: ElevatedButton(
                 onPressed: isSaving ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F5132),
+                  backgroundColor: context.primaryAccent,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -348,9 +603,11 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
-                        'Upload Material',
-                        style: TextStyle(
+                    : Text(
+                        widget.initialMaterial != null
+                            ? 'Update Material'
+                            : 'Upload Material',
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
@@ -363,4 +620,3 @@ class _AddMaterialDialogState extends State<AddMaterialDialog> {
     );
   }
 }
-

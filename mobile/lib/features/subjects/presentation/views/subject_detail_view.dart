@@ -95,13 +95,8 @@ class _SubjectDetailViewState extends State<SubjectDetailView> {
       subject: _subject,
     );
 
-    if (updated == true && mounted) {
-      final vm = context.read<SubjectViewModel>();
-      final fresh = vm.subjects.firstWhere(
-        (s) => s.id == _subject!.id,
-        orElse: () => _subject!,
-      );
-      setState(() => _subject = fresh);
+    if (updated != null && mounted) {
+      setState(() => _subject = updated);
     }
   }
 

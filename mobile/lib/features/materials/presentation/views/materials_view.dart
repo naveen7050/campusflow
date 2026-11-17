@@ -5,6 +5,8 @@ import 'package:campusflow/core/widgets/app_search_bar.dart';
 import 'package:campusflow/core/widgets/app_background.dart';
 import 'package:campusflow/app/theme/app_colors.dart';
 import 'package:campusflow/core/widgets/app_dialogs.dart';
+import 'package:campusflow/core/utils/url_helper.dart';
+import 'pdf_viewer_view.dart';
 import '../viewmodels/material_viewmodel.dart';
 import '../widgets/add_material_dialog.dart';
 
@@ -468,6 +470,34 @@ class _MaterialCard extends StatelessWidget {
     );
   }
 
+  void _openMaterial(BuildContext context, dynamic material) {
+    final url = material.fileUrl?.toString().trim();
+    if (url == null || url.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No document link or file attached.')),
+      );
+      return;
+    }
+
+    final isPdf = material.fileType == 'PDF' ||
+        url.toLowerCase().endsWith('.pdf') ||
+        url.toLowerCase().contains('.pdf');
+
+    if (isPdf) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PdfViewerView(
+            title: material.title,
+            pathOrUrl: url,
+          ),
+        ),
+      );
+    } else {
+      UrlHelper.openUrl(context, url);
+    }
+  }
+
   void _showMaterialDetails(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -550,32 +580,79 @@ class _MaterialCard extends StatelessWidget {
                 if (material.fileUrl != null &&
                     material.fileUrl!.toString().isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          LucideIcons.link,
-                          size: 18,
-                          color: Color(0xFF6B7280),
+                  InkWell(
+                    onTap: () => _openMaterial(context, material),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: context.primaryAccent.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: context.primaryAccent.withValues(alpha: 0.25),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            material.fileUrl.toString(),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF1E3A8A),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            material.fileType == 'PDF'
+                                ? LucideIcons.fileText
+                                : LucideIcons.link,
+                            size: 18,
+                            color: context.primaryAccent,
                           ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              material.fileUrl.toString(),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: context.primaryAccent,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(
+                            LucideIcons.arrowUpRight,
+                            size: 16,
+                            color: context.primaryAccent,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 46,
+                    child: ElevatedButton.icon(
+                      icon: Icon(
+                        material.fileType == 'PDF'
+                            ? LucideIcons.bookOpen
+                            : LucideIcons.externalLink,
+                        size: 18,
+                      ),
+                      label: Text(
+                        material.fileType == 'PDF'
+                            ? 'Read Document in App'
+                            : 'Open Link / Document',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.primaryAccent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                      ],
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _openMaterial(context, material);
+                      },
                     ),
                   ),
                 ],

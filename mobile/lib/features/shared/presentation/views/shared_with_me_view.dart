@@ -12,6 +12,8 @@ import 'package:campusflow/features/questions/presentation/viewmodels/question_v
 import 'package:campusflow/features/notes/presentation/views/create_note_view.dart';
 import 'package:campusflow/features/materials/presentation/widgets/add_material_dialog.dart';
 import 'package:campusflow/features/questions/presentation/views/create_question_view.dart';
+import 'package:campusflow/core/utils/url_helper.dart';
+import 'package:campusflow/features/materials/presentation/views/pdf_viewer_view.dart';
 
 class SharedWithMeView extends StatefulWidget {
   static const String routeName = '/shared-with-me';
@@ -640,29 +642,110 @@ class _SharedWithMeViewState extends State<SharedWithMeView> {
                 ),
                 const SizedBox(height: 16),
                 if (fileUrl != null && fileUrl.isNotEmpty) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(LucideIcons.link, size: 16, color: Color(0xFF0F5132)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            fileUrl,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF1E3A8A),
-                              decoration: TextDecoration.underline,
+                  InkWell(
+                    onTap: () {
+                      final isPdf = fileType.toUpperCase() == 'PDF' ||
+                          fileUrl.toLowerCase().endsWith('.pdf') ||
+                          fileUrl.toLowerCase().contains('.pdf');
+                      if (isPdf) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PdfViewerView(
+                              title: title,
+                              pathOrUrl: fileUrl,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
+                        );
+                      } else {
+                        UrlHelper.openUrl(context, fileUrl);
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: context.primaryAccent.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: context.primaryAccent.withValues(alpha: 0.25),
                         ),
-                      ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            fileType.toUpperCase() == 'PDF'
+                                ? LucideIcons.fileText
+                                : LucideIcons.link,
+                            size: 16,
+                            color: context.primaryAccent,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              fileUrl,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: context.primaryAccent,
+                                decoration: TextDecoration.underline,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(
+                            LucideIcons.arrowUpRight,
+                            size: 16,
+                            color: context.primaryAccent,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton.icon(
+                      icon: Icon(
+                        fileType.toUpperCase() == 'PDF'
+                            ? LucideIcons.bookOpen
+                            : LucideIcons.externalLink,
+                        size: 17,
+                      ),
+                      label: Text(
+                        fileType.toUpperCase() == 'PDF'
+                            ? 'Read Document in App'
+                            : 'Open Link / Document',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.primaryAccent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        final isPdf = fileType.toUpperCase() == 'PDF' ||
+                            fileUrl.toLowerCase().endsWith('.pdf') ||
+                            fileUrl.toLowerCase().contains('.pdf');
+                        if (isPdf) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PdfViewerView(
+                                title: title,
+                                pathOrUrl: fileUrl,
+                              ),
+                            ),
+                          );
+                        } else {
+                          UrlHelper.openUrl(context, fileUrl);
+                        }
+                      },
                     ),
                   ),
                   const SizedBox(height: 16),

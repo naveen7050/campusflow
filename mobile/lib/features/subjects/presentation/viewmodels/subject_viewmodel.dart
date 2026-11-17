@@ -67,7 +67,7 @@ class SubjectViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> createSubject({
+  Future<SubjectModel?> createSubject({
     required String name,
     String? code,
     String? description,
@@ -92,10 +92,10 @@ class SubjectViewModel extends ChangeNotifier {
       );
 
       _subjects.insert(0, newSubject);
-      return true;
+      return newSubject;
     } catch (e) {
       _errorMessage = e.toString();
-      return false;
+      return null;
     } finally {
       _isSaving = false;
       notifyListeners();

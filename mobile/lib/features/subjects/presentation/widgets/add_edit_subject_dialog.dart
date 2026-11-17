@@ -1,20 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:campusflow/features/auth/presentation/viewmodels/auth_viewmodel.dart';
 import '../../domain/models/subject_model.dart';
 import '../viewmodels/subject_viewmodel.dart';
 import 'package:campusflow/app/theme/app_colors.dart';
 
 class AddEditSubjectDialog extends StatefulWidget {
   final SubjectModel? subject;
+  final String? initialDepartment;
+  final int? initialSemester;
 
-  const AddEditSubjectDialog({super.key, this.subject});
+  const AddEditSubjectDialog({
+    super.key,
+    this.subject,
+    this.initialDepartment,
+    this.initialSemester,
+  });
 
-  static Future<bool?> show(BuildContext context, {SubjectModel? subject}) {
+  static Future<SubjectModel?> show(
+    BuildContext context, {
+    SubjectModel? subject,
+    String? initialDepartment,
+    int? initialSemester,
+  }) {
+    final user = context.read<AuthViewModel>().currentUser;
+    final resolvedDept = initialDepartment ?? user?.department;
+    final resolvedSem = initialSemester ?? user?.semester;
+
     final isTablet = MediaQuery.of(context).size.width >= 600;
 
     if (isTablet) {
-      return showDialog<bool>(
+      return showDialog<SubjectModel?>(
         context: context,
         builder: (context) => Dialog(
           shape: RoundedRectangleBorder(
@@ -22,12 +39,16 @@ class AddEditSubjectDialog extends StatefulWidget {
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
-            child: AddEditSubjectDialog(subject: subject),
+            child: AddEditSubjectDialog(
+              subject: subject,
+              initialDepartment: resolvedDept,
+              initialSemester: resolvedSem,
+            ),
           ),
         ),
       );
     } else {
-      return showModalBottomSheet<bool>(
+      return showModalBottomSheet<SubjectModel?>(
         context: context,
         isScrollControlled: true,
         backgroundColor: context.cardBg,
@@ -38,7 +59,11 @@ class AddEditSubjectDialog extends StatefulWidget {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: AddEditSubjectDialog(subject: subject),
+          child: AddEditSubjectDialog(
+            subject: subject,
+            initialDepartment: resolvedDept,
+            initialSemester: resolvedSem,
+          ),
         ),
       );
     }
@@ -83,9 +108,10 @@ class _AddEditSubjectDialogState extends State<AddEditSubjectDialog> {
     final s = widget.subject;
     _nameController = TextEditingController(text: s?.name ?? '');
     _codeController = TextEditingController(text: s?.code ?? '');
-    _departmentController = TextEditingController(text: s?.department ?? '');
+    _departmentController =
+        TextEditingController(text: s?.department ?? widget.initialDepartment ?? '');
     _descriptionController = TextEditingController(text: s?.description ?? '');
-    _selectedSemester = s?.semester ?? 1;
+    _selectedSemester = s?.semester ?? widget.initialSemester ?? 1;
     _selectedColor = s?.color ?? '#0F5132';
     _selectedIcon = s?.icon ?? 'menu_book';
   }
@@ -103,37 +129,44 @@ class _AddEditSubjectDialogState extends State<AddEditSubjectDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     final vm = context.read<SubjectViewModel>();
-    bool success;
 
     if (widget.subject == null) {
-      success = await vm.createSubject(
-        name: _nameController.text,
-        code: _codeController.text.isEmpty ? null : _codeController.text,
+      final newSubject = await vm.createSubject(
+        name: _nameController.text.trim(),
+        code: _codeController.text.trim().isEmpty ? null : _codeController.text.trim(),
         description:
-            _descriptionController.text.isEmpty ? null : _descriptionController.text,
+            _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
         semester: _selectedSemester,
         department:
-            _departmentController.text.isEmpty ? null : _departmentController.text,
+            _departmentController.text.trim().isEmpty ? null : _departmentController.text.trim(),
         color: _selectedColor,
         icon: _selectedIcon,
       );
-    } else {
-      success = await vm.updateSubject(
-        id: widget.subject!.id,
-        name: _nameController.text,
-        code: _codeController.text.isEmpty ? null : _codeController.text,
-        description:
-            _descriptionController.text.isEmpty ? null : _descriptionController.text,
-        semester: _selectedSemester,
-        department:
-            _departmentController.text.isEmpty ? null : _departmentController.text,
-        color: _selectedColor,
-        icon: _selectedIcon,
-      );
-    }
 
-    if (success && mounted) {
-      Navigator.pop(context, true);
+      if (newSubject != null && mounted) {
+        Navigator.pop(context, newSubject);
+      }
+    } else {
+      final success = await vm.updateSubject(
+        id: widget.subject!.id,
+        name: _nameController.text.trim(),
+        code: _codeController.text.trim().isEmpty ? null : _codeController.text.trim(),
+        description:
+            _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
+        semester: _selectedSemester,
+        department:
+            _departmentController.text.trim().isEmpty ? null : _departmentController.text.trim(),
+        color: _selectedColor,
+        icon: _selectedIcon,
+      );
+
+      if (success && mounted) {
+        final updated = vm.subjects.firstWhere(
+          (s) => s.id == widget.subject!.id,
+          orElse: () => widget.subject!,
+        );
+        Navigator.pop(context, updated);
+      }
     }
   }
 

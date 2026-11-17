@@ -60,7 +60,7 @@ const AuthController = {
       // Seed starter subjects, notes, and questions for rich initial experience
       try {
         const { seedUserData } = require('../scripts/seed');
-        await seedUserData(user.id);
+        await seedUserData(user.id, user.department, user.semester);
       } catch (seedErr) {
         console.warn('Starter data seeding skipped:', seedErr.message);
       }

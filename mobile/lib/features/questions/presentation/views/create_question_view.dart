@@ -9,6 +9,7 @@ import 'package:campusflow/features/subjects/presentation/viewmodels/subject_vie
 import 'package:campusflow/features/questions/presentation/viewmodels/question_viewmodel.dart';
 import 'package:campusflow/features/questions/domain/models/question_model.dart';
 import 'package:campusflow/core/widgets/category_bottom_sheet.dart';
+import 'package:campusflow/features/subjects/presentation/widgets/add_edit_subject_dialog.dart';
 import 'package:campusflow/app/theme/app_colors.dart';
 
 class CreateQuestionView extends StatefulWidget {
@@ -448,36 +449,77 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
                   const SizedBox(height: 18),
 
                   // Category selector (Screen 20 Bottom Sheet Integration)
-                  const Text(
-                    'Category',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1F2937),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Category / Subject',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: context.textPrimary,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () async {
+                          final created =
+                              await AddEditSubjectDialog.show(context);
+                          if (created != null && mounted) {
+                            setState(() {
+                              _selectedSubjectId = created.id;
+                            });
+                          }
+                        },
+                        icon: const Icon(LucideIcons.plus, size: 14),
+                        label: const Text(
+                          'New Subject',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          foregroundColor: context.primaryAccent,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   InkWell(
                     onTap: () async {
                       final categoryNames = subjects.map((s) => s.name).toList();
                       if (!categoryNames.contains('Other')) categoryNames.add('Other');
+                      const addNewLabel = '+ Add New Subject...';
+                      if (!categoryNames.contains(addNewLabel)) {
+                        categoryNames.add(addNewLabel);
+                      }
                       final selectedName = subjects
                           .where((s) => s.id == _selectedSubjectId)
                           .map((s) => s.name)
                           .firstOrNull;
                       final chosen = await CategoryBottomSheet.show(
                         context,
-                        categories: categoryNames.isNotEmpty
-                            ? categoryNames
-                            : ['DSA', 'Database', 'Web Development', 'Java', 'Android', 'Other'],
+                        categories: categoryNames,
                         initialSelected: selectedName,
                       );
                       if (chosen != null) {
-                        final found =
-                            subjects.where((s) => s.name == chosen).firstOrNull;
-                        setState(() {
-                          _selectedSubjectId = found?.id;
-                        });
+                        if (chosen == addNewLabel) {
+                          final created =
+                              await AddEditSubjectDialog.show(context);
+                          if (created != null && mounted) {
+                            setState(() {
+                              _selectedSubjectId = created.id;
+                            });
+                          }
+                        } else {
+                          final found =
+                              subjects.where((s) => s.name == chosen).firstOrNull;
+                          setState(() {
+                            _selectedSubjectId = found?.id;
+                          });
+                        }
                       }
                     },
                     borderRadius: BorderRadius.circular(10),
@@ -487,7 +529,9 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
                         vertical: 14,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: context.isDarkMode
+                            ? const Color(0xFF262626)
+                            : const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
@@ -502,13 +546,13 @@ class _CreateQuestionViewState extends State<CreateQuestionView> {
                             style: TextStyle(
                               fontSize: 14,
                               color: _selectedSubjectId != null
-                                  ? const Color(0xFF1F2937)
-                                  : const Color(0xFF9CA3AF),
+                                  ? context.textPrimary
+                                  : context.textSecondary,
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             LucideIcons.chevronDown,
-                            color: Color(0xFF9CA3AF),
+                            color: context.textSecondary,
                           ),
                         ],
                       ),

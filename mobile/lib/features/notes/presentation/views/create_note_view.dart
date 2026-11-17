@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
+import 'package:campusflow/features/subjects/presentation/widgets/add_edit_subject_dialog.dart';
 import 'package:campusflow/features/notes/presentation/viewmodels/note_viewmodel.dart';
 import 'package:campusflow/features/notes/domain/models/note_model.dart';
 import 'package:campusflow/app/theme/app_colors.dart';
@@ -197,25 +198,112 @@ class _CreateNoteViewState extends State<CreateNoteView> {
                   const SizedBox(height: 14),
 
                   // Subject Selector
-                  DropdownButtonFormField<String>(
-                    value: _selectedSubjectId,
-                    dropdownColor: Colors.white,
-                    style: const TextStyle(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Subject',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: context.textPrimary,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () async {
+                          final created =
+                              await AddEditSubjectDialog.show(context);
+                          if (created != null && mounted) {
+                            setState(() {
+                              _selectedSubjectId = created.id;
+                            });
+                          }
+                        },
+                        icon: const Icon(LucideIcons.plus, size: 14),
+                        label: const Text(
+                          'New Subject',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          foregroundColor: context.primaryAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String?>(
+                    value: subjects.any((s) => s.id == _selectedSubjectId)
+                        ? _selectedSubjectId
+                        : null,
+                    dropdownColor: context.cardBg,
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF1F2937),
+                      color: context.textPrimary,
                     ),
                     decoration: _inputDecoration.copyWith(
+                      fillColor: context.isDarkMode
+                          ? const Color(0xFF262626)
+                          : const Color(0xFFF3F4F6),
                       hintText: 'Select Subject (Optional)',
-                      hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                      hintStyle: TextStyle(color: context.textSecondary),
                     ),
-                    items: subjects.map((sub) {
-                      return DropdownMenuItem(
-                        value: sub.id,
-                        child: Text('${sub.name} (${sub.code ?? ""})'),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      setState(() => _selectedSubjectId = val);
+                    items: [
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text(
+                          'No Subject (General)',
+                          style: TextStyle(color: context.textSecondary),
+                        ),
+                      ),
+                      ...subjects.map((sub) {
+                        final displayCode =
+                            (sub.code != null && sub.code!.isNotEmpty)
+                                ? ' (${sub.code})'
+                                : '';
+                        return DropdownMenuItem<String?>(
+                          value: sub.id,
+                          child: Text(
+                            '${sub.name}$displayCode',
+                            style: TextStyle(color: context.textPrimary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }),
+                      DropdownMenuItem<String?>(
+                        value: '__create_new__',
+                        child: Row(
+                          children: [
+                            Icon(LucideIcons.plusCircle,
+                                size: 16, color: context.primaryAccent),
+                            const SizedBox(width: 8),
+                            Text(
+                              '+ Add New Subject...',
+                              style: TextStyle(
+                                color: context.primaryAccent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    onChanged: (val) async {
+                      if (val == '__create_new__') {
+                        final created =
+                            await AddEditSubjectDialog.show(context);
+                        if (created != null && mounted) {
+                          setState(() => _selectedSubjectId = created.id);
+                        } else if (mounted) {
+                          setState(() {});
+                        }
+                      } else {
+                        setState(() => _selectedSubjectId = val);
+                      }
                     },
                   ),
                   const SizedBox(height: 14),
