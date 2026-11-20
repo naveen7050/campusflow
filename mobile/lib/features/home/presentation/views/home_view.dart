@@ -13,7 +13,7 @@ import 'package:campusflow/features/assignments/presentation/views/assignments_v
 import 'package:campusflow/core/widgets/app_search_bar.dart';
 import 'package:campusflow/core/widgets/app_dialogs.dart';
 import 'package:campusflow/core/widgets/app_background.dart';
-import 'package:campusflow/features/shared/presentation/views/shared_with_me_view.dart';
+import 'package:campusflow/features/shared/presentation/views/community_feed_view.dart';
 import 'package:campusflow/features/profile/presentation/views/profile_view.dart';
 import 'package:campusflow/features/search/presentation/views/search_view.dart';
 import 'package:campusflow/features/subjects/presentation/viewmodels/subject_viewmodel.dart';
@@ -399,7 +399,7 @@ class _HomeViewState extends State<HomeView> {
       return const SubjectsView(isTab: true);
     }
     if (index == 3) {
-      return const SharedWithMeView(isTab: true);
+      return const CommunityFeedView(isTab: true);
     }
     if (index == 4) {
       return const ProfileView(isTab: true);
@@ -437,9 +437,9 @@ class _HomeViewState extends State<HomeView> {
             ),
             const SizedBox(width: 48), // Space for FAB
             _NavItem(
-              icon: LucideIcons.share2,
-              activeIcon: LucideIcons.share2,
-              label: 'Shared',
+              icon: LucideIcons.users,
+              activeIcon: LucideIcons.users,
+              label: 'Community',
               index: 3,
               selectedIndex: _selectedIndex,
               onTap: (i) => setState(() => _selectedIndex = i),

@@ -13,7 +13,7 @@ import '../features/materials/presentation/views/materials_view.dart';
 import '../features/questions/presentation/views/create_question_view.dart';
 import '../features/questions/presentation/views/questions_view.dart';
 import '../features/assignments/presentation/views/assignments_view.dart';
-import '../features/shared/presentation/views/shared_with_me_view.dart';
+import '../features/shared/presentation/views/community_feed_view.dart';
 import '../features/profile/presentation/views/profile_view.dart';
 import '../features/profile/presentation/views/settings_view.dart';
 import '../features/search/presentation/views/search_view.dart';
@@ -36,7 +36,7 @@ class AppRoutes {
   static const String createQuestion = CreateQuestionView.routeName;
   static const String questions = QuestionsView.routeName;
   static const String assignments = AssignmentsView.routeName;
-  static const String sharedWithMe = SharedWithMeView.routeName;
+  static const String community = CommunityFeedView.routeName;
   static const String profile = ProfileView.routeName;
   static const String settings = SettingsView.routeName;
   static const String search = SearchView.routeName;
@@ -57,7 +57,7 @@ class AppRoutes {
       createQuestion: (context) => const CreateQuestionView(),
       questions: (context) => const QuestionsView(),
       assignments: (context) => const AssignmentsView(),
-      sharedWithMe: (context) => const SharedWithMeView(),
+      community: (context) => const CommunityFeedView(),
       profile: (context) => const ProfileView(),
       settings: (context) => const SettingsView(),
       search: (context) => const SearchView(),

@@ -12,8 +12,8 @@ class NoteRepository {
     String? filter,
   }) async {
     final queryParams = <String>[];
-    if (subjectId != null) queryParams.add('subjectId=$subjectId');
-    if (filter != null) queryParams.add('filter=$filter');
+    if (subjectId != null && subjectId.isNotEmpty) queryParams.add('subjectId=$subjectId');
+    if (filter != null && filter.isNotEmpty) queryParams.add('filter=$filter');
 
     final queryString =
         queryParams.isNotEmpty ? '?${queryParams.join('&')}' : '';

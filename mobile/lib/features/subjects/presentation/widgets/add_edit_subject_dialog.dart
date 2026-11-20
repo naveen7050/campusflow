@@ -24,7 +24,7 @@ class AddEditSubjectDialog extends StatefulWidget {
     String? initialDepartment,
     int? initialSemester,
   }) {
-    final user = context.read<AuthViewModel>().currentUser;
+    final user = context.read<AuthViewModel>().user;
     final resolvedDept = initialDepartment ?? user?.department;
     final resolvedSem = initialSemester ?? user?.semester;
 
