@@ -29,8 +29,18 @@ CampusFlow follows a modern, card-based interface crafted for mobile, tablet, an
   - JWT token-based authentication with encrypted on-device storage.
   - Automatic session restore with route protection gates.
 
+- **🌐 Community Knowledge Sharing**
+  - Campus-wide sharing feed for exam preparation and peer collaboration.
+  - Share exam questions with answer status indicators.
+  - Share revision notes with content previews and topic tags.
+  - Share PDF study materials and syllabus resources with external document links.
+  - Filter resources instantly by category (`All`, `Questions`, `Notes`, `Materials`).
+  - Search shared resources by title, subject, or author name.
+  - View full resource details inside responsive bottom sheets.
+
 - **📚 Subject Management**
   - Semester-based subject filtering (`Sem 1` to `Sem 8`).
+  - Dynamic subject creation directly from note, question, and assignment dialogs.
   - Custom color-coded subject cards with dedicated academic icons.
   - Instant search across subject names, codes, and departments.
   - Adaptive interface: list view on phones, responsive grid on tablets/desktops.
@@ -48,7 +58,7 @@ CampusFlow follows a modern, card-based interface crafted for mobile, tablet, an
   - Personalized dynamic greetings and quick profile chip.
   - Real-time counters for questions, notes, and study materials.
   - Fast-access "Recent Activity" cards.
-  - 5-tab docked bottom navigation bar (`Home`, `Explore`, `+ Create`, `Shared`, `Profile`).
+  - Docked bottom navigation bar (`Home`, `Explore`, `+ Create`, `Community`, `Profile`).
 
 ---
 
@@ -76,7 +86,11 @@ campusflow/
 │   │       ├── home/   # Dashboard & bottom navigation
 │   │       ├── subjects/# Subject model, repository, viewmodel, views
 │   │       ├── notes/  # Notes model & repository
-│   │       └── materials/# Material model & repository
+│   │       ├── materials/# Material model & repository
+│   │       ├── questions/# Question model, repository, viewmodel, views
+│   │       ├── assignments/# Assignment model & tracking
+│   │       ├── shared/ # Community feed, cards, and unified viewmodel
+│   │       └── profile/# Student profile and settings views
 │
 └── docs/               # Architecture diagrams, SRS, and API documentation
     └── api/            # Complete REST API documentation
